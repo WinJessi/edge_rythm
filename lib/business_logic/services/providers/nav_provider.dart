@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 class NavProvider with ChangeNotifier {
   var _current = 0;
+  var _topBar = 1;
+  var _eventNav = 0;
 
   get current {
     return _current;
@@ -9,6 +11,24 @@ class NavProvider with ChangeNotifier {
 
   set current(int i) {
     _current = i;
+    notifyListeners();
+  }
+
+  get topBar {
+    return _topBar;
+  }
+
+  set topBar(int i) {
+    _topBar = i;
+    notifyListeners();
+  }
+
+  get eventNav {
+    return _eventNav;
+  }
+
+  set eventNav(int i) {
+    _eventNav = i;
     notifyListeners();
   }
 }

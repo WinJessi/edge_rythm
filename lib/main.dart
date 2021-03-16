@@ -1,8 +1,15 @@
 import 'package:edge_rythm/business_logic/services/providers/nav_provider.dart';
 import 'package:edge_rythm/views/ui/auth.dart';
+import 'package:edge_rythm/views/ui/events/event_view.dart';
+import 'package:edge_rythm/views/ui/events/payment.dart';
+import 'package:edge_rythm/views/ui/events/see_all.dart';
+import 'package:edge_rythm/views/ui/events/ticket.dart';
 import 'package:edge_rythm/views/ui/home.dart';
+import 'package:edge_rythm/views/ui/producers/home.dart';
 import 'package:edge_rythm/views/ui/splash.dart';
+import 'package:edge_rythm/views/ui/streaming/home.dart';
 import 'package:edge_rythm/views/ui/welcome.dart';
+import 'package:edge_rythm/views/ui/what.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -25,6 +32,7 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.grey,
           primaryColor: Color.fromRGBO(55, 55, 55, 1),
+          accentColor: Color.fromRGBO(219, 165, 20, 1),
           brightness: Brightness.dark,
           textTheme: TextTheme(
             headline1: GoogleFonts.roboto(
@@ -76,14 +84,22 @@ class MyApp extends StatelessWidget {
           appBarTheme: AppBarTheme(
             backgroundColor: Colors.transparent,
             iconTheme: IconThemeData(color: Colors.white),
+            elevation: 0,
           ),
           bottomNavigationBarTheme: BottomNavigationBarThemeData(
             backgroundColor: Colors.transparent,
             showUnselectedLabels: true,
-            unselectedItemColor: Color.fromRGBO(55, 55, 55, 1),
+            unselectedItemColor: Colors.grey.shade700,
             selectedItemColor: Color.fromRGBO(219, 165, 20, 1),
             elevation: 0,
             type: BottomNavigationBarType.fixed,
+          ),
+          cardColor: Color.fromRGBO(55, 55, 55, 1),
+          cardTheme: CardTheme(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            color: Color.fromRGBO(55, 55, 55, 1),
           ),
           inputDecorationTheme: InputDecorationTheme(
             fillColor: Color.fromRGBO(242, 241, 243, 1),
@@ -105,6 +121,13 @@ class MyApp extends StatelessWidget {
           HomeScreen.route: (_) => HomeScreen(),
           WelcomeScreen.route: (_) => WelcomeScreen(),
           AuthenticationScreen.route: (_) => AuthenticationScreen(),
+          WhatDoYouWantScreen.route: (_) => WhatDoYouWantScreen(),
+          ProducersHomeScreen.route: (_) => ProducersHomeScreen(),
+          StreamingMusicScree.route: (_) => StreamingMusicScree(),
+          SeeAllScreen.route: (_) => SeeAllScreen(),
+          EventViewScreen.route: (_) => EventViewScreen(),
+          PaymentScreen.route: (_) => PaymentScreen(),
+          TicketScreen.route: (_) => TicketScreen(),
         },
       ),
     );

@@ -1,5 +1,4 @@
 import 'package:edge_rythm/views/ui/auth.dart';
-import 'package:edge_rythm/views/ui/home.dart';
 import 'package:edge_rythm/views/util/gradient_button.dart';
 import 'package:flutter/material.dart';
 
@@ -12,7 +11,8 @@ class WelcomeScreen extends StatelessWidget {
         children: [
           Padding(
             padding: EdgeInsets.symmetric(
-                vertical: MediaQuery.of(context).padding.top * 2),
+              vertical: MediaQuery.of(context).padding.top,
+            ),
             child: Image.asset(
               'assets/images/welcome.png',
               width: double.infinity,

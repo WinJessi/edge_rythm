@@ -1,17 +1,23 @@
 import 'package:edge_rythm/business_logic/services/providers/nav_provider.dart';
+import 'package:edge_rythm/views/ui/what.dart';
 import 'package:edge_rythm/views/util/gradient_button.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'home.dart';
+
 class AuthenticationScreen extends StatefulWidget {
   static const route = '/authentication';
-  callSignUp(BuildContext context) => createState().gotoSignUP(context);
-  callLogin(BuildContext context) => createState().gotoLogin();
+  // callSignUp(BuildContext context) => createState().gotoSignUP(context);
+  // callLogin(BuildContext context) => createState().gotoLogin();
+  static final GlobalKey<AuthenticationScreenState> globalKey =
+      new GlobalKey<AuthenticationScreenState>();
+  AuthenticationScreen() : super(key: AuthenticationScreen.globalKey);
   @override
-  _AuthenticationScreenState createState() => _AuthenticationScreenState();
+  AuthenticationScreenState createState() => AuthenticationScreenState();
 }
 
-class _AuthenticationScreenState extends State<AuthenticationScreen> {
+class AuthenticationScreenState extends State<AuthenticationScreen> {
   PageController _controller;
 
   @override
@@ -21,14 +27,17 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
   }
 
   void gotoSignUP(BuildContext context) {
-    Provider.of<NavProvider>(context, listen: false).current = 1;
+    Future.delayed(Duration(milliseconds: 350)).then((value) =>
+        Provider.of<NavProvider>(context, listen: false).current = 1);
     _controller.animateToPage(1,
-        duration: Duration(milliseconds: 500), curve: Curves.easeIn);
+        duration: Duration(milliseconds: 500), curve: Curves.linear);
   }
 
-  void gotoLogin() {
+  void gotoLogin(BuildContext context) {
+    Future.delayed(Duration(milliseconds: 350)).then((value) =>
+        Provider.of<NavProvider>(context, listen: false).current = 0);
     _controller.animateToPage(0,
-        duration: Duration(milliseconds: 500), curve: Curves.easeInOut);
+        duration: Duration(milliseconds: 500), curve: Curves.linear);
   }
 
   @override
@@ -37,40 +46,24 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
     super.dispose();
   }
 
-  void next() {
-    Future.delayed(Duration(seconds: 5)).then((value) =>
-        _controller.animateToPage(1,
-            duration: Duration(milliseconds: 500), curve: Curves.ease));
-    prev();
-  }
-
-  void prev() {
-    Future.delayed(Duration(seconds: 5)).then((value) =>
-        _controller.animateToPage(1,
-            duration: Duration(milliseconds: 500), curve: Curves.ease));
-    next();
-  }
-
   @override
   Widget build(BuildContext context) {
-    next();
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Consumer<NavProvider>(
         builder: (context, value, child) => Stack(
           children: [
-            Align(
-              alignment: Alignment.topCenter,
-              child: Padding(
-                padding: const EdgeInsets.all(50),
-                child: Image.asset(
-                  value.current == 0
-                      ? 'assets/images/login.png'
-                      : 'assets/images/sign_up.png',
-                  height: MediaQuery.of(context).size.height * .35,
-                  fit: BoxFit.contain,
-                  width: double.infinity,
-                ),
+            Container(
+              height: MediaQuery.of(context).size.height * .3,
+              width: double.infinity,
+              alignment: Alignment.center,
+              padding: EdgeInsets.only(
+                  top: MediaQuery.of(context).padding.top * 1.5),
+              child: Image.asset(
+                value.current == 0
+                    ? 'assets/images/login.png'
+                    : 'assets/images/sign_up.png',
+                fit: BoxFit.cover,
               ),
             ),
             Scaffold(
@@ -92,12 +85,12 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                       padding: EdgeInsets.only(right: 15, left: 15),
                       child: PageView(
                         controller: _controller,
-                        // physics: NeverScrollableScrollPhysics(),
+                        physics: NeverScrollableScrollPhysics(),
                         scrollDirection: Axis.vertical,
-                        onPageChanged: (i) =>
-                            Future.delayed(Duration(milliseconds: 350))
-                                .then((value) => value.current = i),
-                        children: [Login(), Signup()],
+                        children: [
+                          Login(),
+                          Signup(),
+                        ],
                       ),
                     ),
                   )
@@ -136,8 +129,9 @@ class Login extends StatelessWidget {
             hintText: 'Email address',
           ),
         ),
-        SizedBox(height: 15),
+        SizedBox(height: 8),
         TextField(
+          obscureText: true,
           decoration: InputDecoration(
               prefixIcon: Icon(Icons.lock, color: Colors.grey),
               hintText: 'Password',
@@ -149,9 +143,13 @@ class Login extends StatelessWidget {
             'Login',
             style: Theme.of(context).textTheme.button,
           ),
+          onPressed: () => Navigator.of(context).pushNamedAndRemoveUntil(
+              WhatDoYouWantScreen.route, (route) => false),
         ),
+        SizedBox(height: 8),
         TextButton(
-          onPressed: () => AuthenticationScreen().callSignUp(context),
+          onPressed: () =>
+              AuthenticationScreen.globalKey.currentState.gotoSignUP(context),
           child: Text(
             'Don’t have an account?',
             style: Theme.of(context)
@@ -160,6 +158,7 @@ class Login extends StatelessWidget {
                 .copyWith(color: Colors.black),
           ),
         ),
+        SizedBox(height: 8),
       ],
     );
   }
@@ -168,53 +167,74 @@ class Login extends StatelessWidget {
 class Signup extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        SizedBox(height: 15),
-        Text(
-          'Sign',
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.headline3,
+    return IntrinsicHeight(
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SizedBox(height: 15),
+            Text(
+              'Sign Up',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.headline3,
+            ),
+            SizedBox(height: 15),
+            Text(
+              'Join other users making waves on our platform now. Gotcha',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyText2,
+            ),
+            SizedBox(height: 30),
+            TextField(
+              decoration: InputDecoration(
+                prefixIcon: Icon(Icons.person, color: Colors.grey),
+                hintText: 'Full name',
+              ),
+            ),
+            SizedBox(height: 8),
+            TextField(
+              decoration: InputDecoration(
+                prefixIcon: Icon(Icons.mail, color: Colors.grey),
+                hintText: 'Email address',
+              ),
+            ),
+            SizedBox(height: 8),
+            TextField(
+              decoration: InputDecoration(
+                prefixIcon: Icon(Icons.call, color: Colors.grey),
+                hintText: 'Phone number',
+              ),
+            ),
+            SizedBox(height: 8),
+            TextField(
+              decoration: InputDecoration(
+                  prefixIcon: Icon(Icons.lock, color: Colors.grey),
+                  hintText: 'Password',
+                  suffixIcon: Icon(Icons.remove_red_eye, color: Colors.grey)),
+            ),
+            SizedBox(height: 60),
+            GradientRaisedButton(
+              child: Text(
+                'Sign Up',
+                style: Theme.of(context).textTheme.button,
+              ),
+            ),
+            SizedBox(height: 8),
+            TextButton(
+              onPressed: () => AuthenticationScreen.globalKey.currentState
+                  .gotoLogin(context),
+              child: Text(
+                'Already have an account?',
+                style: Theme.of(context)
+                    .textTheme
+                    .button
+                    .copyWith(color: Colors.black),
+              ),
+            ),
+            SizedBox(height: 8),
+          ],
         ),
-        SizedBox(height: 15),
-        Text(
-          'Welcome Superstar, Fill in your details',
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.bodyText2,
-        ),
-        SizedBox(height: 30),
-        TextField(
-          decoration: InputDecoration(
-            prefixIcon: Icon(Icons.mail, color: Colors.grey),
-            hintText: 'Email address',
-          ),
-        ),
-        SizedBox(height: 15),
-        TextField(
-          decoration: InputDecoration(
-              prefixIcon: Icon(Icons.lock, color: Colors.grey),
-              hintText: 'Password',
-              suffixIcon: Icon(Icons.remove_red_eye, color: Colors.grey)),
-        ),
-        Spacer(),
-        GradientRaisedButton(
-          child: Text(
-            'Sign Up',
-            style: Theme.of(context).textTheme.button,
-          ),
-        ),
-        TextButton(
-          onPressed: () => AuthenticationScreen().callSignUp(context),
-          child: Text(
-            'Already have an account?',
-            style: Theme.of(context)
-                .textTheme
-                .button
-                .copyWith(color: Colors.black),
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
