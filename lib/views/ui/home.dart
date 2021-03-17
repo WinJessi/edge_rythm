@@ -1,5 +1,6 @@
 import 'package:edge_rythm/views/ui/events/home.dart';
 import 'package:edge_rythm/views/ui/producers/home.dart';
+import 'package:edge_rythm/views/util/my_drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -59,7 +60,7 @@ class HomeScreen extends StatelessWidget {
             SizedBox(width: 15)
           ],
         ),
-        drawer: Drawer(),
+        drawer: MyDrawer(),
         body: _screens[value.topBar],
       ),
     );

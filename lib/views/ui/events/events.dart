@@ -160,7 +160,7 @@ class EventCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20),
                     child: FancyShimmerImage(
                       imageUrl:
-                          'https://pbs.twimg.com/media/DrPHOC4XgAAqiH-.jpg',
+                          'https://www.theo2.co.uk/assets/img/List_Thumb_215x215-21ad3f55eb.png',
                       boxFit: BoxFit.cover,
                       shimmerBackColor: Color.fromRGBO(219, 165, 20, 1),
                       shimmerBaseColor: Color.fromRGBO(183, 134, 40, 1),
