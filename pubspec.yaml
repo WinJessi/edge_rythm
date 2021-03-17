@@ -29,7 +29,12 @@ dependencies:
   fancy_shimmer_image: ^1.2.0
   # dio: ^3.0.10
   intl: ^0.17.0
-  # shared_preferences: ^2.0.4
+  shared_preferences: ^2.0.4
+  flutter_ticket_widget: ^0.0.1
+  image_gallery_saver: ^1.6.8
+  permission: ^0.1.7
+  path_provider: ^2.0.1
+  path: ^1.8.0
   
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

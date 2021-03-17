@@ -1,5 +1,6 @@
 import 'package:edge_rythm/views/ui/events/event_view.dart';
 import 'package:edge_rythm/views/ui/events/see_all.dart';
+import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
 import 'package:flutter/material.dart';
 
 class EventsScreen extends StatelessWidget {
@@ -157,7 +158,13 @@ class EventCard extends StatelessWidget {
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(20),
-                    child: Placeholder(),
+                    child: FancyShimmerImage(
+                      imageUrl:
+                          'https://pbs.twimg.com/media/DrPHOC4XgAAqiH-.jpg',
+                      boxFit: BoxFit.cover,
+                      shimmerBackColor: Color.fromRGBO(219, 165, 20, 1),
+                      shimmerBaseColor: Color.fromRGBO(183, 134, 40, 1),
+                    ),
                   ),
                 ),
               ),

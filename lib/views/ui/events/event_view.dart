@@ -1,4 +1,5 @@
 import 'package:edge_rythm/views/ui/events/payment.dart';
+import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../util/gradient_button.dart';
@@ -16,7 +17,15 @@ class EventViewScreen extends StatelessWidget {
             height: MediaQuery.of(context).size.height * .4,
             child: Stack(
               children: [
-                Placeholder(),
+                FancyShimmerImage(
+                  imageUrl:
+                      'https://thephoenixconcerttheatre.com/wp-content/uploads/2018/03/Davido.jpg',
+                  boxFit: BoxFit.cover,
+                  width: double.infinity,
+                  height: double.maxFinite,
+                  shimmerBackColor: Color.fromRGBO(219, 165, 20, 1),
+                  shimmerBaseColor: Color.fromRGBO(183, 134, 40, 1),
+                ),
                 Container(color: Colors.black26),
                 IconButton(
                   icon: Icon(Icons.close),
