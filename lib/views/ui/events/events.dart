@@ -1,13 +1,18 @@
+import 'package:edge_rythm/business_logic/model/ticket.dart';
+import 'package:edge_rythm/business_logic/services/providers/ticket.dart';
 import 'package:edge_rythm/views/ui/events/event_view.dart';
 import 'package:edge_rythm/views/ui/events/see_all.dart';
 import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:shimmer/shimmer.dart';
 
 class EventsScreen extends StatelessWidget {
   const EventsScreen({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    var ticket = Provider.of<TicketProvider>(context, listen: false);
     return Scaffold(
       body: ListView(
         physics: ClampingScrollPhysics(),
@@ -86,17 +91,33 @@ class EventsScreen extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(
-            height: 280,
-            width: double.infinity,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              children: [
-                SizedBox(width: 15),
-                for (var i = 0; i < 6; i++) EventCard(),
-                SizedBox(width: 15),
-              ],
-            ),
+          FutureBuilder(
+            future: ticket.upcomingEvents(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Row(
+                  children: [
+                    for (var i = 0; i < 2; i++) MyShimmer(),
+                  ],
+                );
+              } else {
+                return Consumer<TicketProvider>(
+                  builder: (context, value, child) => SizedBox(
+                    height: 280,
+                    width: double.infinity,
+                    child: ListView(
+                      scrollDirection: Axis.horizontal,
+                      children: [
+                        SizedBox(width: 15),
+                        for (var i = 0; i < value.utickets.length; i++)
+                          EventCard(ticket: value.utickets[i]),
+                        SizedBox(width: 15),
+                      ],
+                    ),
+                  ),
+                );
+              }
+            },
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
@@ -136,13 +157,99 @@ class EventsScreen extends StatelessWidget {
   }
 }
 
+class MyShimmer extends StatelessWidget {
+  const MyShimmer({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: Shimmer.fromColors(
+          baseColor: Colors.grey[100],
+          highlightColor: Colors.grey[50],
+          child: Container(
+            width: 220,
+            height: 280,
+            margin: EdgeInsets.symmetric(horizontal: 3),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              color: Colors.white24,
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  margin: EdgeInsets.symmetric(
+                    vertical: 3,
+                    horizontal: 5,
+                  ),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    color: Colors.white38,
+                  ),
+                  height: 140,
+                ),
+                Container(
+                  margin: EdgeInsets.symmetric(
+                    vertical: 3,
+                    horizontal: 5,
+                  ),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    color: Colors.white54,
+                  ),
+                  height: 45,
+                ),
+                Container(
+                  margin: EdgeInsets.symmetric(
+                    vertical: 3,
+                    horizontal: 5,
+                  ),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    color: Colors.white54,
+                  ),
+                  height: 25,
+                ),
+                Container(
+                  margin: EdgeInsets.symmetric(
+                    vertical: 3,
+                    horizontal: 5,
+                  ),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    color: Colors.white54,
+                  ),
+                  height: 20,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class EventCard extends StatelessWidget {
-  const EventCard({Key key}) : super(key: key);
+  const EventCard({
+    Key key,
+    this.ticket,
+  }) : super(key: key);
+
+  final Ticket ticket;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => Navigator.of(context).pushNamed(EventViewScreen.route),
+      onTap: () => Navigator.of(context).pushNamed(
+        EventViewScreen.route,
+        arguments: ticket,
+      ),
       child: Card(
         child: Container(
           width: 220,
@@ -158,12 +265,14 @@ class EventCard extends StatelessWidget {
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(20),
-                    child: FancyShimmerImage(
-                      imageUrl:
-                          'https://www.theo2.co.uk/assets/img/List_Thumb_215x215-21ad3f55eb.png',
-                      boxFit: BoxFit.cover,
-                      shimmerBackColor: Color.fromRGBO(219, 165, 20, 1),
-                      shimmerBaseColor: Color.fromRGBO(183, 134, 40, 1),
+                    child: Hero(
+                      tag: '#${ticket.id}',
+                      child: FancyShimmerImage(
+                        imageUrl: ticket.showBanner,
+                        boxFit: BoxFit.cover,
+                        shimmerBackColor: Color.fromRGBO(219, 165, 20, 1),
+                        shimmerBaseColor: Color.fromRGBO(183, 134, 40, 1),
+                      ),
                     ),
                   ),
                 ),
@@ -178,7 +287,7 @@ class EventCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Davido at the O2 london',
+                        ticket.showTitle,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: Theme.of(context)
@@ -187,11 +296,11 @@ class EventCard extends StatelessWidget {
                             .copyWith(color: Colors.white),
                       ),
                       Text(
-                        'Friday 17th April 2020',
+                        ticket.showDate,
                         style: Theme.of(context).textTheme.headline6,
                       ),
                       Text(
-                        '2:00 PM',
+                        ticket.showTime,
                         style: Theme.of(context).textTheme.headline6,
                       ),
                     ],

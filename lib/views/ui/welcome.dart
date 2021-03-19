@@ -1,9 +1,23 @@
 import 'package:edge_rythm/views/ui/auth.dart';
 import 'package:edge_rythm/views/util/gradient_button.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class WelcomeScreen extends StatelessWidget {
+class WelcomeScreen extends StatefulWidget {
   static const route = '/welcomescreen';
+
+  @override
+  _WelcomeScreenState createState() => _WelcomeScreenState();
+}
+
+class _WelcomeScreenState extends State<WelcomeScreen> {
+  checked() async {
+    var pref = await SharedPreferences.getInstance();
+    pref.setBool('WELCOME', true);
+    Navigator.of(context)
+        .pushNamedAndRemoveUntil(AuthenticationScreen.route, (route) => false);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,7 +46,7 @@ class WelcomeScreen extends StatelessWidget {
                 ),
                 SizedBox(height: 15),
                 Text(
-                  'Dont hve a producer?\nNo problem, search through our collection\nfor talented producers and sound engineers',
+                  'Dont have a producer?\nNo problem, search through our collection\nfor talented producers and sound engineers',
                   style: Theme.of(context).textTheme.bodyText1,
                   textAlign: TextAlign.center,
                 ),
@@ -42,9 +56,7 @@ class WelcomeScreen extends StatelessWidget {
                     'Continue',
                     style: Theme.of(context).textTheme.button,
                   ),
-                  onPressed: () => Navigator.of(context)
-                      .pushNamedAndRemoveUntil(
-                          AuthenticationScreen.route, (route) => false),
+                  onPressed: () => checked(),
                 ),
                 SizedBox(height: 15)
               ],

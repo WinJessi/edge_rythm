@@ -1,3 +1,4 @@
+import 'package:edge_rythm/business_logic/model/ticket.dart';
 import 'package:edge_rythm/views/ui/events/payment.dart';
 import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +11,7 @@ class EventViewScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var ticket = ModalRoute.of(context).settings.arguments as Ticket;
     return Scaffold(
       body: ListView(
         children: [
@@ -17,14 +19,16 @@ class EventViewScreen extends StatelessWidget {
             height: MediaQuery.of(context).size.height * .4,
             child: Stack(
               children: [
-                FancyShimmerImage(
-                  imageUrl:
-                      'https://thephoenixconcerttheatre.com/wp-content/uploads/2018/03/Davido.jpg',
-                  boxFit: BoxFit.cover,
-                  width: double.infinity,
-                  height: double.maxFinite,
-                  shimmerBackColor: Color.fromRGBO(219, 165, 20, 1),
-                  shimmerBaseColor: Color.fromRGBO(183, 134, 40, 1),
+                Hero(
+                  tag: '#${ticket.id}',
+                  child: FancyShimmerImage(
+                    imageUrl: ticket.showBanner,
+                    boxFit: BoxFit.cover,
+                    width: double.infinity,
+                    height: double.maxFinite,
+                    shimmerBackColor: Color.fromRGBO(219, 165, 20, 1),
+                    shimmerBaseColor: Color.fromRGBO(183, 134, 40, 1),
+                  ),
                 ),
                 Container(color: Colors.black26),
                 IconButton(
@@ -37,7 +41,7 @@ class EventViewScreen extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
             child: Text(
-              'Wizkid Made In Lagos Shutdown 2018',
+              ticket.showTitle,
               style: Theme.of(context).textTheme.headline1,
             ),
           ),
@@ -50,7 +54,7 @@ class EventViewScreen extends StatelessWidget {
                     Icon(Icons.timer),
                     SizedBox(width: 15),
                     Text(
-                      '3:14pm',
+                      ticket.showTime,
                       style: Theme.of(context)
                           .textTheme
                           .bodyText2
@@ -64,7 +68,7 @@ class EventViewScreen extends StatelessWidget {
                     Icon(Icons.calendar_today),
                     SizedBox(width: 15),
                     Text(
-                      'Friday saturday 2020',
+                      ticket.showDate,
                       style: Theme.of(context)
                           .textTheme
                           .bodyText2
@@ -78,7 +82,7 @@ class EventViewScreen extends StatelessWidget {
                     Icon(Icons.location_pin),
                     SizedBox(width: 15),
                     Text(
-                      'No_15 Jakpa road by the new resort center',
+                      ticket.showAddress,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context)
@@ -103,14 +107,14 @@ class EventViewScreen extends StatelessWidget {
                 ),
                 SizedBox(height: 15),
                 Text(
-                  'Experience global superstar, Wizkid like never before!\n\nWizkid will be performing alongside his friends to an estimated audience of 20,000 people at the purpose built Eko Atlantic City Festival Grounds in Victoria Island, Lagos, Nigeria.\n\nFeaturing: Wizkid, Tiwa Savage, Not3, Dj Tunez, Ceeza Milli, Maleekberry, Runtown, Burna Boy, Duncan Mighty, Slimcase, Harry Songs, Kce and Mr. Eazi.',
+                  ticket.showDetail,
                   style: Theme.of(context).textTheme.bodyText1,
                 ),
               ],
             ),
           ),
           SizedBox(height: 10),
-          PriceList(),
+          PriceList(prices: ticket.priceList),
           SizedBox(height: 5),
           Tickets(),
           SizedBox(height: 30),
@@ -208,7 +212,10 @@ class _TicketsState extends State<Tickets> {
 class PriceList extends StatefulWidget {
   const PriceList({
     Key key,
+    this.prices,
   }) : super(key: key);
+
+  final List<dynamic> prices;
 
   @override
   _PriceListState createState() => _PriceListState();
@@ -232,7 +239,7 @@ class _PriceListState extends State<PriceList> {
             child: ExpansionTile(
               title: Text('Select from price list'),
               children: [
-                for (var i = 0; i < 5; i++)
+                for (var i = 0; i < widget.prices.length; i++)
                   ListTile(
                     onTap: () {
                       setState(() {
@@ -242,7 +249,8 @@ class _PriceListState extends State<PriceList> {
                     tileColor: _current == i
                         ? Colors.blue.withOpacity(.3)
                         : Colors.transparent,
-                    title: Text('Regular N1,500'),
+                    title: Text(
+                        '${widget.prices[i]['title']} ${widget.prices[i]['price']}'),
                   )
               ],
             ),
