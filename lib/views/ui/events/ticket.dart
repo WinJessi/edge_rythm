@@ -2,6 +2,10 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
+import 'package:edge_rythm/business_logic/model/myticket.dart';
+import 'package:edge_rythm/business_logic/model/ticket.dart';
+import 'package:edge_rythm/business_logic/services/providers/ticket.dart';
+import 'package:edge_rythm/views/ui/home.dart';
 import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -9,6 +13,7 @@ import 'package:flutter_ticket_widget/flutter_ticket_widget.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission/permission.dart';
+import 'package:provider/provider.dart';
 
 class TicketScreen extends StatelessWidget {
   static const route = '/ticketscreen';
@@ -16,20 +21,29 @@ class TicketScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var ticket = Provider.of<TicketProvider>(context);
+    var purchase = ModalRoute.of(context).settings.arguments as bool;
     return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+            icon: Icon(Icons.close),
+            onPressed: () => Navigator.of(context)
+                .pushNamedAndRemoveUntil(HomeScreen.route, (route) => false)),
+      ),
       body: ListView(
         children: [
-          Column(
-            children: [
-              SizedBox(height: MediaQuery.of(context).padding.top * .5),
-              Image.asset('assets/images/success.png'),
-              SizedBox(height: 15),
-              Text(
-                'Payment successful',
-                style: Theme.of(context).textTheme.headline2,
-              ),
-            ],
-          ),
+          if (purchase)
+            Column(
+              children: [
+                SizedBox(height: MediaQuery.of(context).padding.top * .5),
+                Image.asset('assets/images/success.png'),
+                SizedBox(height: 15),
+                Text(
+                  'Payment successful',
+                  style: Theme.of(context).textTheme.headline2,
+                ),
+              ],
+            ),
           Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: 15,
@@ -40,7 +54,9 @@ class TicketScreen extends StatelessWidget {
               style: Theme.of(context).textTheme.headline5,
             ),
           ),
-          for (var i = 0; i < 3; i++) TicketCard(),
+          if (ticket.myTickets.single.howMany != null)
+            for (var i = 0; i < int.parse(ticket.myTickets.single.howMany); i++)
+              TicketCard(myTicket: ticket.myTickets.single, i: i),
         ],
       ),
     );
@@ -48,7 +64,14 @@ class TicketScreen extends StatelessWidget {
 }
 
 class TicketCard extends StatefulWidget {
-  const TicketCard({Key key}) : super(key: key);
+  const TicketCard({
+    Key key,
+    this.myTicket,
+    this.i,
+  }) : super(key: key);
+
+  final MyTicket myTicket;
+  final int i;
 
   @override
   _TicketCardState createState() => _TicketCardState();
@@ -132,6 +155,8 @@ class _TicketCardState extends State<TicketCard> {
 
   @override
   Widget build(BuildContext context) {
+    var ticket = Provider.of<TicketProvider>(context, listen: false)
+        .tickets[TMap.ticket] as Ticket;
     return RepaintBoundary(
       key: globalKey,
       child: Container(
@@ -155,8 +180,7 @@ class _TicketCardState extends State<TicketCard> {
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(20),
                           child: FancyShimmerImage(
-                            imageUrl:
-                                'https://pbs.twimg.com/media/DrPHOC4XgAAqiH-.jpg',
+                            imageUrl: ticket.showBanner,
                             boxFit: BoxFit.cover,
                             width: double.infinity,
                             height: double.maxFinite,
@@ -168,7 +192,7 @@ class _TicketCardState extends State<TicketCard> {
                     ),
                     SizedBox(height: 8),
                     Text(
-                      'Wizkid Made In Lagos\nShutdown 2018',
+                      ticket.showTitle,
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.headline3,
                     ),
@@ -181,7 +205,7 @@ class _TicketCardState extends State<TicketCard> {
                             Icon(Icons.calendar_today, color: Colors.black),
                             SizedBox(width: 5),
                             Text(
-                              '3:14pm',
+                              ticket.showTime,
                               style: Theme.of(context).textTheme.bodyText2,
                             ),
                           ],
@@ -194,7 +218,7 @@ class _TicketCardState extends State<TicketCard> {
                               SizedBox(width: 5),
                               Expanded(
                                 child: Text(
-                                  'Friday saturday 2020',
+                                  ticket.showDate,
                                   style: Theme.of(context).textTheme.bodyText2,
                                 ),
                               ),
@@ -212,7 +236,7 @@ class _TicketCardState extends State<TicketCard> {
                         SizedBox(width: 5),
                         Expanded(
                           child: Text(
-                            'No_15 Jakpa road by the new resort center',
+                            ticket.showAddress,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: Theme.of(context).textTheme.bodyText2,
@@ -239,7 +263,7 @@ class _TicketCardState extends State<TicketCard> {
                           .copyWith(color: Colors.black),
                     ),
                     Text(
-                      'ID12345_12',
+                      '${widget.myTicket.bookingID}_${widget.i}',
                       style: Theme.of(context).textTheme.headline3,
                     ),
                     TextButton(

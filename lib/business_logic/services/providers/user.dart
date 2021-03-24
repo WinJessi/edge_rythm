@@ -22,7 +22,7 @@ class UserProvider with ChangeNotifier {
     user.update(key, (_) => value);
   }
 
-  get userM {
+  UserModel get userM {
     return userModel;
   }
 
@@ -81,7 +81,7 @@ class UserProvider with ChangeNotifier {
 
   Future<bool> autoLogin() async {
     final prefs = await SharedPreferences.getInstance();
-    if (prefs.getString(UserMap.token).isEmpty) return false;
+    if (!prefs.containsKey(UserMap.token)) return false;
 
     var data = prefs.getString(UserMap.user);
     userModel = UserModel.fromJsonLocally(json.decode(data));
@@ -92,7 +92,7 @@ class UserProvider with ChangeNotifier {
 
   Future<String> getToken() async {
     var pref = await SharedPreferences.getInstance();
-    return json.decode(pref.getString(UserMap.token));
+    return pref.getString(UserMap.token);
   }
 
   Future<void> logout() async {

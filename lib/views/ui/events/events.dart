@@ -81,8 +81,8 @@ class EventsScreen extends StatelessWidget {
                 ),
                 Spacer(),
                 TextButton(
-                  onPressed: () =>
-                      Navigator.of(context).pushNamed(SeeAllScreen.route),
+                  onPressed: () => Navigator.of(context)
+                      .pushNamed(SeeAllScreen.route, arguments: 'UPCOMING'),
                   child: Text(
                     'See all',
                     style: Theme.of(context).textTheme.button,
@@ -129,7 +129,8 @@ class EventsScreen extends StatelessWidget {
                 ),
                 Spacer(),
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () => Navigator.of(context)
+                      .pushNamed(SeeAllScreen.route, arguments: 'POPULAR'),
                   child: Text(
                     'See all',
                     style: Theme.of(context).textTheme.button,
@@ -138,17 +139,33 @@ class EventsScreen extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(
-            height: 280,
-            width: double.infinity,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              children: [
-                SizedBox(width: 15),
-                for (var i = 0; i < 6; i++) EventCard(),
-                SizedBox(width: 15),
-              ],
-            ),
+          FutureBuilder(
+            future: ticket.popularEvents(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Row(
+                  children: [
+                    for (var i = 0; i < 2; i++) MyShimmer(),
+                  ],
+                );
+              } else {
+                return Consumer<TicketProvider>(
+                  builder: (context, value, child) => SizedBox(
+                    height: 280,
+                    width: double.infinity,
+                    child: ListView(
+                      scrollDirection: Axis.horizontal,
+                      children: [
+                        SizedBox(width: 15),
+                        for (var i = 0; i < value.ptickets.length; i++)
+                          EventCard(ticket: value.ptickets[i]),
+                        SizedBox(width: 15),
+                      ],
+                    ),
+                  ),
+                );
+              }
+            },
           ),
           SizedBox(height: 30),
         ],

@@ -29,9 +29,9 @@ class Ticket {
         showDetail = map[TicketMap.show_detail],
         showTime = map[TicketMap.show_time],
         priceList = [
-          {'title': 'Regular', 'price': 'N1,500'},
-          {'title': 'VIP', 'price': 'N15,000'},
-          {'title': 'VVIP', 'price': 'N150,000'},
+          {'title': 'Regular', 'price': '1500'},
+          {'title': 'VIP', 'price': '15000'},
+          {'title': 'VVIP', 'price': '150000'},
         ],
         // priceList = json.decode(map[TicketMap.price_list]),
         showTitle = map[TicketMap.show_title];

@@ -30,6 +30,7 @@ dependencies:
   http: ^0.13.0
   intl: ^0.17.0
   shimmer: ^1.1.2
+  flutter_paystack: ^1.0.2
   shared_preferences: ^2.0.4
   flutter_ticket_widget: ^0.0.1
   image_gallery_saver: ^1.6.8

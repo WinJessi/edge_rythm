@@ -1,5 +1,7 @@
+import 'package:edge_rythm/business_logic/services/providers/ticket.dart';
 import 'package:edge_rythm/views/ui/events/events.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class SeeAllScreen extends StatelessWidget {
   static const route = '/seeallscreen';
@@ -7,6 +9,7 @@ class SeeAllScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var from = ModalRoute.of(context).settings.arguments as String;
     return Scaffold(
       appBar: AppBar(),
       body: Column(
@@ -36,16 +39,24 @@ class SeeAllScreen extends StatelessWidget {
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: GridView(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  childAspectRatio: .7,
-                  mainAxisSpacing: 5,
-                  crossAxisSpacing: 5,
-                  crossAxisCount: 2,
+              child: Consumer<TicketProvider>(
+                builder: (context, value, child) => GridView(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    childAspectRatio: .65,
+                    mainAxisSpacing: 5,
+                    crossAxisSpacing: 5,
+                    crossAxisCount: 2,
+                  ),
+                  children: from == 'UPCOMING'
+                      ? [
+                          for (var i = 0; i < value.utickets.length; i++)
+                            EventCard(ticket: value.utickets[i]),
+                        ]
+                      : [
+                          for (var i = 0; i < value.ptickets.length; i++)
+                            EventCard(ticket: value.ptickets[i]),
+                        ],
                 ),
-                children: [
-                  for (var i = 0; i < 5; i++) EventCard(),
-                ],
               ),
             ),
           )

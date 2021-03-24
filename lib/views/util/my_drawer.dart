@@ -1,10 +1,14 @@
+import 'package:edge_rythm/business_logic/services/providers/user.dart';
+import 'package:edge_rythm/views/ui/auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class MyDrawer extends StatelessWidget {
   const MyDrawer({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    var user = Provider.of<UserProvider>(context, listen: false);
     return Theme(
       data: new ThemeData(canvasColor: Colors.white),
       child: Drawer(
@@ -23,7 +27,7 @@ class MyDrawer extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 15),
               child: Text(
-                'Lorem Ipsum',
+                user.userM.name,
                 style: Theme.of(context).textTheme.headline4,
               ),
             ),
@@ -82,7 +86,11 @@ class MyDrawer extends StatelessWidget {
               ),
             ),
             ListTile(
-              onTap: () {},
+              onTap: () async {
+                user.logout();
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                    AuthenticationScreen.route, (route) => false);
+              },
               title: Text(
                 'Logout',
                 style: Theme.of(context).textTheme.button.copyWith(

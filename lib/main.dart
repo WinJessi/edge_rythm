@@ -1,3 +1,4 @@
+import 'package:edge_rythm/business_logic/services/providers/myticket.dart';
 import 'package:edge_rythm/business_logic/services/providers/nav_provider.dart';
 import 'package:edge_rythm/business_logic/services/providers/ticket.dart';
 import 'package:edge_rythm/business_logic/services/providers/user.dart';
@@ -46,7 +47,12 @@ class _MyAppState extends State<MyApp> {
       providers: [
         ChangeNotifierProvider.value(value: UserProvider()),
         ChangeNotifierProvider.value(value: NavProvider()),
-        ChangeNotifierProvider.value(value: TicketProvider()),
+        ChangeNotifierProvider.value(value: TicketProvider())
+        // ,ChangeNotifierProxyProvider<TicketProvider, MyTicketProvider>(
+        //   create: (_) => MyTicketProvider(null),
+        //   update: (context, value, previous) => MyTicketProvider(value),
+        // ),
+        // ChangeNotifierProvider.value(value: MyTicketProvider()),
       ],
       child: Consumer<UserProvider>(
         builder: (context, value, child) => MaterialApp(
