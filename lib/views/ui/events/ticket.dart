@@ -2,6 +2,8 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
+import 'package:achievement_view/achievement_view.dart';
+import 'package:achievement_view/achievement_widget.dart';
 import 'package:edge_rythm/business_logic/model/myticket.dart';
 import 'package:edge_rythm/business_logic/model/ticket.dart';
 import 'package:edge_rythm/business_logic/services/providers/ticket.dart';
@@ -131,8 +133,18 @@ class _TicketCardState extends State<TicketCard> {
   saveToGallery(Uint8List data) async {
     File file = await writeToFile(data);
 
-    final result = await ImageGallerySaver.saveFile(file.path);
-    // toast saved
+    await ImageGallerySaver.saveFile(file.path);
+    AchievementView(
+      context,
+      title: "Success",
+      subTitle: "Ticket saved to your gallery",
+      icon: Icon(Icons.calendar_today, color: Colors.white),
+      typeAnimationContent: AnimationTypeAchievement.fade,
+      borderRadius: 20.0,
+      color: Colors.black,
+      alignment: Alignment.topCenter,
+      duration: Duration(seconds: 3),
+    )..show();
   }
 
   Future<File> writeToFile(Uint8List data) async {

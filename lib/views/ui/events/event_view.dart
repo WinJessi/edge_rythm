@@ -1,5 +1,4 @@
 import 'package:edge_rythm/business_logic/model/ticket.dart';
-import 'package:edge_rythm/business_logic/services/providers/myticket.dart';
 import 'package:edge_rythm/business_logic/services/providers/ticket.dart';
 import 'package:edge_rythm/views/ui/events/payment.dart';
 import 'package:edge_rythm/views/ui/events/ticket.dart';
@@ -332,6 +331,7 @@ class _PriceListState extends State<PriceList> {
           Card(
             child: ExpansionTile(
               title: Text('Select from price list'),
+              initiallyExpanded: true,
               children: [
                 for (var i = 0; i < widget.prices.length; i++)
                   ListTile(

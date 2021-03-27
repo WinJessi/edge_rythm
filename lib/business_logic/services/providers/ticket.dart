@@ -14,7 +14,6 @@ var client = http.Client();
 class TicketProvider with ChangeNotifier {
   List<Ticket> utickets = [];
   List<Ticket> ptickets = [];
-  List<MyTicket> myTickets = [];
   Map<String, dynamic> tickets = {
     TMap.title: '',
     TMap.price: '',
@@ -81,6 +80,43 @@ class TicketProvider with ChangeNotifier {
 
         var data = json.decode(response.body);
         myTickets.add(MyTicket.fromJson(data));
+        notifyListeners();
+      } catch (error) {
+        throw error;
+      }
+    });
+  }
+
+  List<MyTicket> myTickets = [];
+  Future<void> fetchMyTickets() async {
+    myTickets.clear();
+    getToken().then((value) async {
+      try {
+        var response = await client.get(
+          Uri.parse('$url/tickets/'),
+          headers: {HttpHeaders.authorizationHeader: value},
+        );
+
+        var data = (json.decode(response.body)) as List<dynamic>;
+        data.forEach((element) {
+          myTickets.add(MyTicket.fromJson(element));
+        });
+
+        notifyListeners();
+      } catch (error) {
+        throw error;
+      }
+    });
+  }
+
+  Future<void> deleteTicket(var id) async {
+    getToken().then((value) async {
+      try {
+        await client.delete(
+          Uri.parse('$url/tickets/$id'),
+          headers: {HttpHeaders.authorizationHeader: value},
+        );
+        myTickets.removeWhere((element) => element.id == id);
         notifyListeners();
       } catch (error) {
         throw error;

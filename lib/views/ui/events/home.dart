@@ -35,8 +35,8 @@ class EventHomeScreen extends StatelessWidget {
               label: 'History',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.notifications),
-              label: 'Notifications',
+              icon: Icon(Icons.chat_outlined),
+              label: 'Message',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.settings),

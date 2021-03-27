@@ -36,8 +36,8 @@ class ProducersHomeScreen extends StatelessWidget {
               label: 'History',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.notifications),
-              label: 'Notifications',
+              icon: Icon(Icons.chat_outlined),
+              label: 'Messages',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.settings),

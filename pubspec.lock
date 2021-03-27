@@ -58,7 +58,7 @@ packages:
     source: hosted
     version: "1.1.0"
   collection:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: collection
       url: "https://pub.dartlang.org"
@@ -163,6 +163,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.0"
+  html_character_entities:
+    dependency: "direct main"
+    description:
+      name: html_character_entities
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.0+1"
   http:
     dependency: "direct main"
     description:
@@ -183,7 +190,7 @@ packages:
       name: image
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.0.1"
+    version: "3.0.2"
   image_gallery_saver:
     dependency: "direct main"
     description:
@@ -405,7 +412,7 @@ packages:
       name: sqflite
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.0+2"
+    version: "2.0.0+3"
   sqflite_common:
     dependency: transitive
     description:
@@ -475,7 +482,7 @@ packages:
       name: uuid
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.0.1"
+    version: "3.0.2"
   vector_math:
     dependency: transitive
     description:

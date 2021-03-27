@@ -29,17 +29,26 @@ class ProducersPriceList extends StatelessWidget {
             ),
           ),
           SizedBox(height: 30),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-            child: Text(
-              'Session',
-              style: Theme.of(context)
-                  .textTheme
-                  .headline4
-                  .copyWith(color: Colors.white),
+          for (var i = 0; i < producer.prices.length; i++)
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                  child: Text(
+                    '${producer.prices[i]['title']}',
+                    style: Theme.of(context)
+                        .textTheme
+                        .headline4
+                        .copyWith(color: Colors.white),
+                  ),
+                ),
+                SessionList(
+                  prices: producer.prices[i]['sessions'],
+                  title: producer.prices[i]['title'],
+                ),
+              ],
             ),
-          ),
-          SessionList(prices: producer.prices),
           SizedBox(height: 30),
           Padding(
             padding: const EdgeInsets.all(15.0),
@@ -64,9 +73,11 @@ class SessionList extends StatefulWidget {
   const SessionList({
     Key key,
     this.prices,
+    this.title,
   }) : super(key: key);
 
   final List<dynamic> prices;
+  final String title;
 
   @override
   _SessionListState createState() => _SessionListState();
@@ -78,6 +89,10 @@ class _SessionListState extends State<SessionList> {
   void initState() {
     Future.delayed(Duration.zero).then((value) {
       var p = Provider.of<ProducersProvider>(context, listen: false);
+      p.setAppointmentParameters(
+        AptMap.title,
+        widget.title,
+      );
       p.setAppointmentParameters(
         AptMap.session,
         widget.prices.first[AptMap.session],
@@ -115,6 +130,10 @@ class _SessionListState extends State<SessionList> {
                 pro.setAppointmentParameters(
                   AptMap.price,
                   widget.prices[i][AptMap.price],
+                );
+                pro.setAppointmentParameters(
+                  AptMap.title,
+                  widget.title,
                 );
               },
               tileColor: _current == i

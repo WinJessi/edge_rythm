@@ -23,7 +23,15 @@ class MyDrawer extends StatelessWidget {
                 onPressed: () => Navigator.of(context).pop(),
               ),
             ),
-            ListTile(leading: CircleAvatar(maxRadius: 16)),
+            ListTile(
+              leading: CircleAvatar(
+                maxRadius: 16,
+                backgroundColor: Colors.black,
+                backgroundImage: NetworkImage(
+                  'https://pngimage.net/wp-content/uploads/2018/06/listening-icon-png-3.png',
+                ),
+              ),
+            ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 15),
               child: Text(

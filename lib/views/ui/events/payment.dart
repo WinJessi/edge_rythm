@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:edge_rythm/business_logic/services/constants.dart';
 import 'package:edge_rythm/business_logic/services/providers/ticket.dart';
 import 'package:edge_rythm/business_logic/services/providers/user.dart';
 import 'package:flutter/material.dart';
@@ -15,16 +16,16 @@ class PaymentScreen extends StatefulWidget {
 }
 
 class _PaymentScreenState extends State<PaymentScreen> {
-  var publicKey = 'pk_test_7ca10957b0b5126315b5e5da5e7a2100756b5cfd';
   PaystackPlugin plugin = new PaystackPlugin();
 
   @override
   void initState() {
-    plugin.initialize(publicKey: publicKey);
+    plugin.initialize(publicKey: Constants.API_KEY);
     Future.delayed(Duration(milliseconds: 100)).then((value) {
       var user = Provider.of<UserProvider>(context, listen: false);
       var ticket = Provider.of<TicketProvider>(context, listen: false);
-      startPayment(user, ticket).then((value) => Navigator.of(context).pop(value));
+      startPayment(user, ticket)
+          .then((value) => Navigator.of(context).pop(value));
     });
 
     super.initState();
@@ -41,6 +42,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
     CheckoutResponse response = await plugin.checkout(
       context,
+      logo: Image.asset('assets/images/splash_logo.png'),
       method: CheckoutMethod.card, // Defaults to CheckoutMethod.selectable
       charge: charge,
     );

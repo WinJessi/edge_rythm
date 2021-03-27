@@ -55,7 +55,8 @@ class HomeScreen extends StatelessWidget {
             CircleAvatar(
               maxRadius: 15,
               backgroundImage: NetworkImage(
-                  'https://fresh-island.org/wp-content/uploads/2020/03/29-1-801x1024.jpg'),
+                'https://pngimage.net/wp-content/uploads/2018/06/listening-icon-png-3.png',
+              ),
             ),
             SizedBox(width: 15)
           ],

@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 class Ticket {
   final int id;
   final String showTitle;

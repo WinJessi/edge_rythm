@@ -10,6 +10,7 @@ import 'package:edge_rythm/views/ui/events/see_all.dart';
 import 'package:edge_rythm/views/ui/events/ticket.dart';
 import 'package:edge_rythm/views/ui/home.dart';
 import 'package:edge_rythm/views/ui/producers/home.dart';
+import 'package:edge_rythm/views/ui/producers/payment.dart';
 import 'package:edge_rythm/views/ui/producers/price_list.dart';
 import 'package:edge_rythm/views/ui/producers/producer_view.dart';
 import 'package:edge_rythm/views/ui/producers/schedule.dart';
@@ -161,6 +162,7 @@ class _MyAppState extends State<MyApp> {
             ProducersView.route: (_) => ProducersView(),
             ProducersPriceList.route: (_) => ProducersPriceList(),
             ScheduleAppointment.route: (_) => ScheduleAppointment(),
+            ProducerPayment.route: (_) => ProducerPayment(),
           },
         ),
       ),

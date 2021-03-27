@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class NavProvider with ChangeNotifier {
   var _current = 0;
-  var _topBar = 0;
+  var _topBar = 1;
   var _eventNav = 0;
   var _producerNav = 0;
 

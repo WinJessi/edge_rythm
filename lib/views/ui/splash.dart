@@ -1,6 +1,5 @@
 import 'package:edge_rythm/business_logic/services/providers/user.dart';
 import 'package:edge_rythm/views/ui/auth.dart';
-import 'package:edge_rythm/views/ui/home.dart';
 import 'package:edge_rythm/views/ui/welcome.dart';
 import 'package:edge_rythm/views/ui/what.dart';
 import 'package:flutter/material.dart';

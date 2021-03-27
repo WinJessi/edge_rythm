@@ -24,10 +24,53 @@ class Producers {
         photo = map[ProducersMap.photo],
         location = map[ProducersMap.location],
         prices = [
-          {'session': 'Reharsal', 'price': '500'},
-          {'session': 'Live', 'price': '1000'},
-          {'session': 'Live streaming', 'price': '1500'},
-          {'session': 'Recording', 'price': '2000'},
+          {
+            'title': 'Rehearsal session',
+            'sessions': [
+              {
+                'session': 'Half session(3hrs)',
+                'price': '10000',
+              },
+              {
+                'session': 'Full session(6hrs)',
+                'price': '25000',
+              },
+            ],
+          },
+          {
+            'title': 'Live recording session',
+            'sessions': [
+              {
+                'session': '6hours full session',
+                'price': '50000',
+              },
+              {
+                'session': '3hours half session',
+                'price': '25000',
+              },
+              {
+                'session': 'Mixing & mastering',
+                'price': '50000',
+              },
+            ],
+          },
+          {
+            'title': 'Digital recording session',
+            'sessions': [
+              {
+                'session': '6hours full session',
+                'price': '30000',
+              },
+              {
+                'session': '3hours half session',
+                'price': '15000',
+              },
+              {
+                'session': 'Mixing & mastering',
+                'price': '30000',
+              },
+            ],
+          },
         ],
         about = map[ProducersMap.about];
 }

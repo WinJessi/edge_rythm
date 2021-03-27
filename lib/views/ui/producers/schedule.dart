@@ -4,7 +4,7 @@ import 'package:duration_picker/duration_picker.dart';
 import 'package:edge_rythm/business_logic/model/producer.dart';
 import 'package:edge_rythm/business_logic/services/providers/holiday.dart';
 import 'package:edge_rythm/business_logic/services/providers/producer.dart';
-import 'package:edge_rythm/views/ui/home.dart';
+import 'package:edge_rythm/views/ui/producers/payment.dart';
 import 'package:edge_rythm/views/util/gradient_button.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -238,7 +238,10 @@ class _ScheduleAppointmentState extends State<ScheduleAppointment> {
                         duration: Duration(seconds: 3),
                       )..show();
                     } else {
-                      confirm(context, producer);
+                      Navigator.of(context).pushNamed(
+                        ProducerPayment.route,
+                        arguments: producer,
+                      );
                     }
                   },
                 ),
@@ -272,102 +275,6 @@ class _ScheduleAppointmentState extends State<ScheduleAppointment> {
           ),
       ],
     );
-  }
-
-  Future appointmentSuccess(BuildContext context) {
-    return showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => Material(
-        color: Colors.transparent,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Align(
-              alignment: Alignment.centerRight,
-              child: Container(
-                margin: EdgeInsets.all(15),
-                width: 50,
-                height: 50,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                ),
-                child: IconButton(
-                  icon: Icon(
-                    Icons.close,
-                    color: Colors.black,
-                  ),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    Navigator.of(context).pushNamedAndRemoveUntil(
-                        HomeScreen.route, (route) => false);
-                  },
-                ),
-              ),
-            ),
-            Container(
-              margin: EdgeInsets.all(15),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  SizedBox(height: 15),
-                  Image.asset(
-                    'assets/images/success.png',
-                    width: 150,
-                    height: 150,
-                  ),
-                  SizedBox(height: 15),
-                  Text(
-                    'Booking Succesful',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context)
-                        .textTheme
-                        .headline2
-                        .copyWith(color: Colors.black),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(15.0),
-                    child: Text(
-                      'Your appointment booking successfuly complete. Jaytunes will message you soon',
-                      style: Theme.of(context).textTheme.bodyText1,
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  confirm(BuildContext context, Producers producer) async {
-    try {
-      setState(() {
-        _isLoading = true;
-      });
-      await Provider.of<ProducersProvider>(context, listen: false)
-          .confirmAppointment(producer.id);
-      together();
-    } catch (error) {
-      throw error;
-    }
-    setState(() {
-      _isLoading = true;
-    });
-  }
-
-  void together() async {
-    setState(() {
-      _isLoading = true;
-    });
-    appointmentSuccess(context);
   }
 }
 
