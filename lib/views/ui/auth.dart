@@ -148,6 +148,7 @@ class Login extends StatefulWidget {
 
 class _LoginState extends State<Login> {
   final GlobalKey<FormState> _form = new GlobalKey();
+  var _showPwd = false;
 
   save(BuildContext context) async {
     if (!_form.currentState.validate()) return;
@@ -211,11 +212,22 @@ class _LoginState extends State<Login> {
             onSaved: (value) => auth.saveData(UserMap.pwd, value),
             keyboardType: TextInputType.text,
             style: TextStyle(color: Colors.grey),
-            obscureText: true,
+            obscureText: !_showPwd,
             decoration: InputDecoration(
                 prefixIcon: Icon(Icons.lock, color: Colors.grey),
                 hintText: 'Password',
-                suffixIcon: Icon(Icons.remove_red_eye, color: Colors.grey)),
+                suffixIcon: IconButton(
+                  icon: Icon(
+                      !_showPwd
+                          ? Icons.remove_red_eye
+                          : Icons.panorama_fish_eye,
+                      color: Colors.grey),
+                  onPressed: () {
+                    setState(() {
+                      _showPwd = !_showPwd;
+                    });
+                  },
+                )),
           ),
           Spacer(),
           GradientRaisedButton(

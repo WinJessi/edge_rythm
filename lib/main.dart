@@ -1,5 +1,6 @@
-import 'package:edge_rythm/business_logic/services/providers/myticket.dart';
+import 'package:edge_rythm/business_logic/services/providers/holiday.dart';
 import 'package:edge_rythm/business_logic/services/providers/nav_provider.dart';
+import 'package:edge_rythm/business_logic/services/providers/producer.dart';
 import 'package:edge_rythm/business_logic/services/providers/ticket.dart';
 import 'package:edge_rythm/business_logic/services/providers/user.dart';
 import 'package:edge_rythm/views/ui/auth.dart';
@@ -9,6 +10,9 @@ import 'package:edge_rythm/views/ui/events/see_all.dart';
 import 'package:edge_rythm/views/ui/events/ticket.dart';
 import 'package:edge_rythm/views/ui/home.dart';
 import 'package:edge_rythm/views/ui/producers/home.dart';
+import 'package:edge_rythm/views/ui/producers/price_list.dart';
+import 'package:edge_rythm/views/ui/producers/producer_view.dart';
+import 'package:edge_rythm/views/ui/producers/schedule.dart';
 import 'package:edge_rythm/views/ui/splash.dart';
 import 'package:edge_rythm/views/ui/streaming/home.dart';
 import 'package:edge_rythm/views/ui/welcome.dart';
@@ -47,12 +51,9 @@ class _MyAppState extends State<MyApp> {
       providers: [
         ChangeNotifierProvider.value(value: UserProvider()),
         ChangeNotifierProvider.value(value: NavProvider()),
-        ChangeNotifierProvider.value(value: TicketProvider())
-        // ,ChangeNotifierProxyProvider<TicketProvider, MyTicketProvider>(
-        //   create: (_) => MyTicketProvider(null),
-        //   update: (context, value, previous) => MyTicketProvider(value),
-        // ),
-        // ChangeNotifierProvider.value(value: MyTicketProvider()),
+        ChangeNotifierProvider.value(value: TicketProvider()),
+        ChangeNotifierProvider.value(value: HolidayProvider()),
+        ChangeNotifierProvider.value(value: ProducersProvider()),
       ],
       child: Consumer<UserProvider>(
         builder: (context, value, child) => MaterialApp(
@@ -157,6 +158,9 @@ class _MyAppState extends State<MyApp> {
             EventViewScreen.route: (_) => EventViewScreen(),
             PaymentScreen.route: (_) => PaymentScreen(),
             TicketScreen.route: (_) => TicketScreen(),
+            ProducersView.route: (_) => ProducersView(),
+            ProducersPriceList.route: (_) => ProducersPriceList(),
+            ScheduleAppointment.route: (_) => ScheduleAppointment(),
           },
         ),
       ),

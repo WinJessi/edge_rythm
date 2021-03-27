@@ -1,9 +1,11 @@
-import 'package:edge_rythm/views/ui/streaming/home.dart';
+import 'package:edge_rythm/views/ui/producers/history.dart';
+import 'package:edge_rythm/views/ui/producers/notification.dart';
+import 'package:edge_rythm/views/ui/producers/producers.dart';
+import 'package:edge_rythm/views/ui/producers/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../business_logic/services/providers/nav_provider.dart';
-import '../../util/gradient_button.dart';
 
 class ProducersHomeScreen extends StatelessWidget {
   static const route = '/producershomescreen';
@@ -11,50 +13,35 @@ class ProducersHomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 15),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Book a Producer\nComing soon',
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.headline2,
+    List<Widget> _screens = [
+      ProducerScreen(),
+      ProducersHistory(),
+      ProducersNotification(),
+      ProducersSettings(),
+    ];
+
+    return Consumer<NavProvider>(
+      builder: (context, value, child) => Scaffold(
+        body: _screens[value.producerNav],
+        bottomNavigationBar: BottomNavigationBar(
+          onTap: (i) => value.producerNav = i,
+          currentIndex: value.producerNav,
+          items: [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home_rounded),
+              label: 'Home',
             ),
-            SizedBox(height: 15),
-            Text(
-              'Book a producer is currently ongoing development and coming soon',
-              style: Theme.of(context).textTheme.bodyText1,
-              textAlign: TextAlign.center,
+            BottomNavigationBarItem(
+              icon: Icon(Icons.history_outlined),
+              label: 'History',
             ),
-            SizedBox(height: 140),
-            Text(
-              'While you are here you could use out other services and enjoy the app.',
-              style: Theme.of(context).textTheme.bodyText1,
-              textAlign: TextAlign.center,
+            BottomNavigationBarItem(
+              icon: Icon(Icons.notifications),
+              label: 'Notifications',
             ),
-            SizedBox(height: 30),
-            GradientRaisedButton(
-              child: Text(
-                'Order Event',
-                style: Theme.of(context).textTheme.button,
-              ),
-              onPressed: () =>
-                  Provider.of<NavProvider>(context, listen: false).topBar = 1,
-            ),
-            SizedBox(height: 15),
-            MaterialButton(
-              onPressed: () =>
-                  Navigator.of(context).pushNamed(StreamingMusicScree.route),
-              child: Text('Stream Music'),
-              color: Colors.blue,
-              padding: EdgeInsets.symmetric(vertical: 15),
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.settings),
+              label: 'Settings',
             ),
           ],
         ),
