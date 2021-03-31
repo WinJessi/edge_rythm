@@ -26,7 +26,7 @@ class MyTicket {
           TicketMap.show_address: map[TicketMap.show_address],
           TicketMap.show_detail: map[TicketMap.show_detail],
           TicketMap.show_banner: map[TicketMap.show_banner],
-          TicketMap.price_list: map[TicketMap.price_list],
+          TicketMap.price_list: [],
         }),
         ticketType = map[MyTicketMap.ticket_type].toString();
 

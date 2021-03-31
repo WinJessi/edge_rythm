@@ -1,6 +1,7 @@
 import 'package:edge_rythm/business_logic/model/user.dart';
 import 'package:edge_rythm/business_logic/services/providers/nav_provider.dart';
 import 'package:edge_rythm/business_logic/services/providers/user.dart';
+import 'package:edge_rythm/views/ui/producer/home.dart';
 import 'package:edge_rythm/views/ui/what.dart';
 import 'package:edge_rythm/views/util/gradient_button.dart';
 import 'package:flutter/material.dart';
@@ -74,7 +75,7 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
                       top: MediaQuery.of(context).padding.top * 1.5),
                   child: Image.asset(
                     value.current == 0
-                        ? 'assets/images/login.png'
+                        ? 'assets/images/producer.png'
                         : 'assets/images/sign_up.png',
                     fit: BoxFit.cover,
                   ),
@@ -155,9 +156,18 @@ class _LoginState extends State<Login> {
     _form.currentState.save();
     try {
       AuthenticationScreen.globalKey.currentState.showLoader();
-      await Provider.of<UserProvider>(context, listen: false).login();
-      Navigator.of(context)
-          .pushNamedAndRemoveUntil(WhatDoYouWantScreen.route, (route) => false);
+      await Provider.of<UserProvider>(context, listen: false)
+          .login()
+          .then((value) {
+        print(value.role);
+        if (value.role == 'USER') {
+          Navigator.of(context).pushNamedAndRemoveUntil(
+              WhatDoYouWantScreen.route, (route) => false);
+        } else {
+          Navigator.of(context)
+              .pushNamedAndRemoveUntil(ProducerHome.route, (route) => false);
+        }
+      });
       AuthenticationScreen.globalKey.currentState.hideLoader();
     } catch (error) {
       throw error;
@@ -170,7 +180,6 @@ class _LoginState extends State<Login> {
     var auth = Provider.of<UserProvider>(context, listen: false);
     return Form(
       key: _form,
-      // autovalidateMode: AutovalidateMode.onUserInteraction,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -269,9 +278,17 @@ class _SignupState extends State<Signup> {
     _form.currentState.save();
     try {
       AuthenticationScreen.globalKey.currentState.showLoader();
-      await Provider.of<UserProvider>(context, listen: false).register();
-      Navigator.of(context)
-          .pushNamedAndRemoveUntil(WhatDoYouWantScreen.route, (route) => false);
+      await Provider.of<UserProvider>(context, listen: false)
+          .register()
+          .then((value) {
+        if (value.role == 'USER') {
+          Navigator.of(context).pushNamedAndRemoveUntil(
+              WhatDoYouWantScreen.route, (route) => false);
+        } else {
+          Navigator.of(context)
+              .pushNamedAndRemoveUntil(ProducerHome.route, (route) => false);
+        }
+      });
       AuthenticationScreen.globalKey.currentState.hideLoader();
     } catch (error) {
       throw error;

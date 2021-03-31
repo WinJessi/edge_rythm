@@ -4,11 +4,13 @@ import 'package:edge_rythm/business_logic/services/providers/producer.dart';
 import 'package:edge_rythm/business_logic/services/providers/ticket.dart';
 import 'package:edge_rythm/business_logic/services/providers/user.dart';
 import 'package:edge_rythm/views/ui/auth.dart';
+import 'package:edge_rythm/views/ui/conversation.dart';
 import 'package:edge_rythm/views/ui/events/event_view.dart';
 import 'package:edge_rythm/views/ui/events/payment.dart';
 import 'package:edge_rythm/views/ui/events/see_all.dart';
 import 'package:edge_rythm/views/ui/events/ticket.dart';
 import 'package:edge_rythm/views/ui/home.dart';
+import 'package:edge_rythm/views/ui/producer/home.dart';
 import 'package:edge_rythm/views/ui/producers/home.dart';
 import 'package:edge_rythm/views/ui/producers/payment.dart';
 import 'package:edge_rythm/views/ui/producers/price_list.dart';
@@ -163,6 +165,8 @@ class _MyAppState extends State<MyApp> {
             ProducersPriceList.route: (_) => ProducersPriceList(),
             ScheduleAppointment.route: (_) => ScheduleAppointment(),
             ProducerPayment.route: (_) => ProducerPayment(),
+            ProducerHome.route: (_) => ProducerHome(),
+            Conversation.route: (_) => Conversation(),
           },
         ),
       ),

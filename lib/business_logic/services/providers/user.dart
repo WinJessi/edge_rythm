@@ -26,7 +26,7 @@ class UserProvider with ChangeNotifier {
     return userModel;
   }
 
-  Future<void> login() async {
+  Future<UserModel> login() async {
     try {
       var response = await client.post(
         Uri.parse('$url/auth/login'),
@@ -44,17 +44,21 @@ class UserProvider with ChangeNotifier {
 
       saveToken(data[UserMap.token]);
       saveDetails(m);
+
+      return userModel;
     } catch (error) {
       throw error;
     }
   }
 
-  Future<void> register() async {
+  Future<UserModel> register() async {
     try {
       var response = await client.post(
         Uri.parse('$url/auth/register'),
         body: user,
       );
+
+      print(response.body);
 
       var data = json.decode(response.body) as Map<String, dynamic>;
       var model = UserModel.fromJson(data);
@@ -64,6 +68,7 @@ class UserProvider with ChangeNotifier {
 
       saveToken(data[UserMap.token]);
       saveDetails(m);
+      return userModel;
     } catch (error) {
       throw error;
     }
@@ -79,15 +84,15 @@ class UserProvider with ChangeNotifier {
     sharedPref.setString(UserMap.user, user);
   }
 
-  Future<bool> autoLogin() async {
+  Future<UserModel> autoLogin() async {
     final prefs = await SharedPreferences.getInstance();
-    if (!prefs.containsKey(UserMap.token)) return false;
+    if (!prefs.containsKey(UserMap.token)) return null;
 
     var data = prefs.getString(UserMap.user);
     userModel = UserModel.fromJsonLocally(json.decode(data));
 
     notifyListeners();
-    return true;
+    return userModel;
   }
 
   Future<String> getToken() async {

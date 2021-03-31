@@ -1,5 +1,6 @@
 class Producers {
   final int id;
+  final int producerID;
   final String name;
   final String genre;
   final String about;
@@ -11,6 +12,7 @@ class Producers {
     this.about,
     this.genre,
     this.id,
+    this.producerID,
     this.photo,
     this.location,
     this.name,
@@ -22,6 +24,7 @@ class Producers {
         name = map[ProducersMap.name],
         genre = map[ProducersMap.genre],
         photo = map[ProducersMap.photo],
+        producerID = map[ProducersMap.producer],
         location = map[ProducersMap.location],
         prices = [
           {
@@ -83,4 +86,5 @@ class ProducersMap {
   static const about = 'about';
   static const prices = 'price_list';
   static const photo = 'photo';
+  static const producer = 'producer_id';
 }

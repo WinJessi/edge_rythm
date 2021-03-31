@@ -84,16 +84,6 @@ class MyDrawer extends StatelessWidget {
               ),
             ),
             ListTile(
-              onTap: () {},
-              title: Text(
-                'Sign in as producer',
-                style: Theme.of(context).textTheme.button.copyWith(
-                      color: Colors.black,
-                      decoration: TextDecoration.underline,
-                    ),
-              ),
-            ),
-            ListTile(
               onTap: () async {
                 user.logout();
                 Navigator.of(context).pushNamedAndRemoveUntil(
@@ -106,7 +96,8 @@ class MyDrawer extends StatelessWidget {
                       decoration: TextDecoration.underline,
                     ),
               ),
-            )
+            ),
+            SizedBox(height: 15)
           ],
         ),
       ),

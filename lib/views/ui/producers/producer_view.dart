@@ -1,4 +1,5 @@
 import 'package:edge_rythm/business_logic/model/producer.dart';
+import 'package:edge_rythm/views/ui/conversation.dart';
 import 'package:edge_rythm/views/ui/producers/price_list.dart';
 import 'package:edge_rythm/views/util/gradient_button.dart';
 import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
@@ -96,21 +97,25 @@ class _ProducersViewState extends State<ProducersView> {
                     ],
                   ),
                 ),
-                Container(
-                  width: 50,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        Color.fromRGBO(219, 165, 20, 1),
-                        Color.fromRGBO(183, 134, 40, 1),
-                      ],
+                GestureDetector(
+                  onTap: () =>
+                      Navigator.of(context).pushNamed(Conversation.route),
+                  child: Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Color.fromRGBO(219, 165, 20, 1),
+                          Color.fromRGBO(183, 134, 40, 1),
+                        ],
+                      ),
                     ),
+                    child: Icon(Icons.mail_outline),
                   ),
-                  child: Icon(Icons.mail_outline),
                 ),
               ],
             ),

@@ -1,5 +1,6 @@
 import 'package:edge_rythm/business_logic/services/providers/user.dart';
 import 'package:edge_rythm/views/ui/auth.dart';
+import 'package:edge_rythm/views/ui/producer/home.dart';
 import 'package:edge_rythm/views/ui/welcome.dart';
 import 'package:edge_rythm/views/ui/what.dart';
 import 'package:flutter/material.dart';
@@ -20,9 +21,18 @@ class _SplashScreenState extends State<SplashScreen> {
       Provider.of<UserProvider>(context, listen: false)
           .autoLogin()
           .then((value) async {
-        if (value) {
-          Navigator.of(context).pushNamedAndRemoveUntil(
-              WhatDoYouWantScreen.route, (route) => false);
+        if (value != null) {
+          if (value.role == 'USER') {
+            Navigator.of(context).pushNamedAndRemoveUntil(
+              WhatDoYouWantScreen.route,
+              (route) => false,
+            );
+          } else {
+            Navigator.of(context).pushNamedAndRemoveUntil(
+              ProducerHome.route,
+              (route) => false,
+            );
+          }
         } else {
           var pref = await SharedPreferences.getInstance();
           if (pref.containsKey('WELCOME')) {

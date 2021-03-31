@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:edge_rythm/business_logic/model/appointment.dart';
 import 'package:edge_rythm/business_logic/model/producer.dart';
+import 'package:edge_rythm/business_logic/model/producer_appointment.dart';
 import 'package:edge_rythm/business_logic/model/user.dart';
 import 'package:flutter/material.dart';
 import 'package:html_character_entities/html_character_entities.dart';
@@ -56,7 +57,6 @@ class ProducersProvider with ChangeNotifier {
 
   Future<void> confirmAppointment(var id) async {
     var data = HtmlCharacterEntities.encode(json.encode(appointment));
-    // print(data);
     getToken().then((token) async {
       try {
         await http.post(
@@ -83,6 +83,28 @@ class ProducersProvider with ChangeNotifier {
         var data = json.decode(response.body) as List<dynamic>;
         data.forEach((element) {
           appointments.add(Appointment.fromJson(element));
+        });
+
+        notifyListeners();
+      } catch (error) {
+        throw error;
+      }
+    });
+  }
+
+  List<ProducerAppointment> pappointments = [];
+  Future fetchProducerAppointments() async {
+    pappointments.clear();
+    getToken().then((token) async {
+      appointments.clear();
+      try {
+        var response = await http.get(
+          Uri.parse('$url/appointment/producer'),
+          headers: {HttpHeaders.authorizationHeader: token},
+        );
+        var data = json.decode(response.body) as List<dynamic>;
+        data.forEach((element) {
+          pappointments.add(ProducerAppointment.fromJson(element));
         });
 
         notifyListeners();

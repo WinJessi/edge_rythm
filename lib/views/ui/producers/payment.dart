@@ -151,7 +151,7 @@ class _ProducerPaymentState extends State<ProducerPayment> {
   confirm(BuildContext context, Producers producer) async {
     try {
       await Provider.of<ProducersProvider>(context, listen: false)
-          .confirmAppointment(producer.id);
+          .confirmAppointment(producer.producerID);
       together();
     } catch (error) {
       throw error;
