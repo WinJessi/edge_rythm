@@ -1,5 +1,9 @@
+import 'package:edge_rythm/business_logic/model/chat.dart';
+import 'package:edge_rythm/business_logic/model/message.dart';
+import 'package:edge_rythm/business_logic/services/providers/chat.dart';
 import 'package:edge_rythm/views/ui/conversation.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class ProducerMessage extends StatelessWidget {
   const ProducerMessage({Key key}) : super(key: key);
@@ -7,76 +11,80 @@ class ProducerMessage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text(
-            'Messages',
-            style: Theme.of(context).textTheme.headline2,
-          ),
-          actions: [CircleAvatar(), SizedBox(width: 15)],
-        ),
-        body: ListView(
-          children: [
-            SizedBox(height: 15),
-            for (var i = 0; i < 2; i++) MessageCard(),
-          ],
-        )
-        // Column(
-        //   mainAxisAlignment: MainAxisAlignment.center,
-        //   crossAxisAlignment: CrossAxisAlignment.stretch,
-        //   children: [
-        //     Image.asset(
-        //       'assets/images/chat.png',
-        //       width: 150,
-        //       height: 150,
-        //     ),
-        //     SizedBox(height: 30),
-        //     Text(
-        //       'You don’t have any messages\nnow check back later',
-        //       style: Theme.of(context).textTheme.bodyText1,
-        //       textAlign: TextAlign.center,
-        //     ),
-        //   ],
-        // ),
-        );
+      body: FutureBuilder(
+        future: Provider.of<ChatProvider>(context, listen: false).getMessage(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else {
+            return Consumer<ChatProvider>(
+              builder: (context, value, child) => value.messages.length < 1
+                  ? Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Image.asset(
+                          'assets/images/chat.png',
+                          width: 150,
+                          height: 150,
+                        ),
+                        SizedBox(height: 30),
+                        Text(
+                          'You don’t have any messages\nnow check back later',
+                          style: Theme.of(context).textTheme.bodyText1,
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    )
+                  : ListView(
+                      children: [
+                        SizedBox(height: 15),
+                        for (var i = 0; i < value.messages.length; i++)
+                          MessageCard(model: value.messages[i]),
+                      ],
+                    ),
+            );
+          }
+        },
+      ),
+    );
   }
 }
 
 class MessageCard extends StatelessWidget {
-  const MessageCard({Key key}) : super(key: key);
+  const MessageCard({
+    Key key,
+    this.model,
+  }) : super(key: key);
+
+  final MessageModel model;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => Navigator.of(context).pushNamed(Conversation.route),
+      onTap: () => Navigator.of(context).pushNamed(Conversation.route,
+          arguments: [
+            model.chat.receiver,
+            model.receiver.name
+          ]).then((value) =>
+          Provider.of<ChatProvider>(context, listen: false).cancelTimer()),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Padding(
-          //   padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-          //   child: Text(
-          //     '$time',
-          //     style: Theme.of(context).textTheme.headline2,
-          //   ),
-          // ),
-          // for (var i = 0; i < appointment.length; i++)
           Container(
-            // height: 80,
             width: double.infinity,
             padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
             margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             decoration: BoxDecoration(
-              color:
-                  // date.isBefore(DateTime.now())
-                  //     ? Colors.red.withOpacity(.3)
-                  //     :
-                  Theme.of(context).primaryColor,
+              color: Theme.of(context).primaryColor,
               borderRadius: BorderRadius.circular(20),
             ),
             child: Row(
               children: [
                 CircleAvatar(
                   maxRadius: 30,
-                  backgroundImage: NetworkImage('https://pngimage.net/wp-content/uploads/2018/06/listening-icon-png-3.png'),
+                  backgroundImage: NetworkImage(
+                      'https://pngimage.net/wp-content/uploads/2018/06/listening-icon-png-3.png'),
                 ),
                 SizedBox(width: 15),
                 Expanded(
@@ -84,14 +92,14 @@ class MessageCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Text(
-                        'appointment.producer.name',
+                        model.receiver.name,
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
                         style: Theme.of(context).textTheme.headline2,
                       ),
                       SizedBox(height: 5),
                       Text(
-                        'Lorem ipsum is a dummy text generated for the purpose of text place holding',
+                        model.chat.message,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: Theme.of(context)

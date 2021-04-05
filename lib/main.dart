@@ -1,3 +1,4 @@
+import 'package:edge_rythm/business_logic/services/providers/chat.dart';
 import 'package:edge_rythm/business_logic/services/providers/holiday.dart';
 import 'package:edge_rythm/business_logic/services/providers/nav_provider.dart';
 import 'package:edge_rythm/business_logic/services/providers/producer.dart';
@@ -57,6 +58,7 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider.value(value: TicketProvider()),
         ChangeNotifierProvider.value(value: HolidayProvider()),
         ChangeNotifierProvider.value(value: ProducersProvider()),
+        ChangeNotifierProvider.value(value: ChatProvider()),
       ],
       child: Consumer<UserProvider>(
         builder: (context, value, child) => MaterialApp(

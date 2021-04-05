@@ -97,11 +97,11 @@ class TicketProvider with ChangeNotifier {
           headers: {HttpHeaders.authorizationHeader: value},
         );
 
-        print(response.body);
-        // var data = (json.decode(response.body)) as List<dynamic>;
-        // data.forEach((element) {
-        //   myTickets.add(MyTicket.fromJson(element));
-        // });
+        // print(response.body);
+        var data = (json.decode(response.body)) as List<dynamic>;
+        data.forEach((element) {
+          myTickets.add(MyTicket.fromJson(element));
+        });
 
         notifyListeners();
       } catch (error) {
