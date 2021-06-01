@@ -10,106 +10,100 @@ class Conversation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var receiver = ModalRoute.of(context).settings.arguments as List<dynamic>;
-    Provider.of<ChatProvider>(context, listen: false)
-        .refreshMessages(receiver[0]);
+
     return Scaffold(
       appBar: AppBar(
         actions: [CircleAvatar(), SizedBox(width: 15)],
       ),
-      body: FutureBuilder(
-          future: Provider.of<ChatProvider>(context, listen: false)
-              .allMessages(receiver[0]),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(
-                child: Image.asset(
-                  'assets/images/loading.gif',
-                  width: 150,
-                  height: 150,
-                ),
-              );
-            } else {
-              return Column(
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(15.0),
+            child: Text(
+              'Message',
+              style: Theme.of(context).textTheme.headline2,
+            ),
+          ),
+          Expanded(
+            child: ClipRRect(
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
+              ),
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.all(15.0),
-                    child: Text(
-                      'Message',
-                      style: Theme.of(context).textTheme.headline2,
-                    ),
-                  ),
-                  Expanded(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(20),
-                        topRight: Radius.circular(20),
+                  Container(
+                    height: 50,
+                    width: double.infinity,
+                    alignment: Alignment.center,
+                    child: Hero(
+                      tag: 'producer_name',
+                      child: Text(
+                        receiver[1],
+                        style: Theme.of(context)
+                            .textTheme
+                            .headline4
+                            .copyWith(color: Colors.black),
                       ),
+                    ),
+                    decoration: BoxDecoration(color: Colors.white, boxShadow: [
+                      BoxShadow(),
+                    ]),
+                  ),
+                  Divider(height: .5),
+                  Expanded(
+                    child: Container(
+                      color: Colors.white,
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Container(
-                            height: 50,
-                            width: double.infinity,
-                            alignment: Alignment.center,
-                            child: Hero(
-                              tag: 'producer_name',
-                              child: Text(
-                                receiver[1],
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headline4
-                                    .copyWith(color: Colors.black),
-                              ),
-                            ),
-                            decoration:
-                                BoxDecoration(color: Colors.white, boxShadow: [
-                              BoxShadow(),
-                            ]),
-                          ),
-                          Divider(height: .5),
                           Expanded(
-                            child: Container(
-                              color: Colors.white,
-                              child: Column(
-                                children: [
-                                  Expanded(
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 15,
-                                      ),
-                                      child: Consumer<ChatProvider>(
-                                        builder: (context, value, child) =>
-                                            ListView(
-                                          reverse: true,
-                                          children: [
-                                            SizedBox(height: 15),
-                                            for (var i = 0;
-                                                i < value.chat.length;
-                                                i++)
-                                              value.chat[i].receiver ==
-                                                      receiver[0]
-                                                  ? Sender(model: value.chat[i])
-                                                  : Receiver(
-                                                      model: value.chat[i]),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  ChatController(receiver: receiver[0]),
-                                ],
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 15,
                               ),
+                              child: StreamBuilder(
+                                  stream: Provider.of<ChatProvider>(context,
+                                          listen: false)
+                                      .allMessages(receiver[0]),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return Center(
+                                        child: Image.asset(
+                                          'assets/images/loading.gif',
+                                          width: 150,
+                                          height: 150,
+                                        ),
+                                      );
+                                    } else {
+                                      var data =
+                                          snapshot.data as List<ChatModel>;
+                                      return ListView(
+                                        children: [
+                                          SizedBox(height: 15),
+                                          for (var i = 0; i < data.length; i++)
+                                            data[i].receiver == receiver[0]
+                                                ? Sender(model: data[i])
+                                                : Receiver(model: data[i]),
+                                        ],
+                                      );
+                                    }
+                                  }),
                             ),
                           ),
+                          ChatController(receiver: receiver[0]),
                         ],
                       ),
                     ),
-                  )
+                  ),
                 ],
-              );
-            }
-          }),
+              ),
+            ),
+          )
+        ],
+      ),
     );
   }
 }

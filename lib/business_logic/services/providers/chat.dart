@@ -1,20 +1,25 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
 
+import 'package:dio/dio.dart';
 import 'package:edge_rythm/business_logic/model/chat.dart';
 import 'package:edge_rythm/business_logic/model/message.dart';
 import 'package:edge_rythm/business_logic/model/user.dart';
+import 'package:edge_rythm/main.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
 
-var url = 'https://soft-demo.online/edge-api';
-var client = http.Client();
+BaseOptions options = new BaseOptions(
+  baseUrl: dotenv.env['BASE_URL'],
+  connectTimeout: 5000,
+  receiveTimeout: 3000,
+);
+
+Dio dio = new Dio(options);
 
 class ChatProvider with ChangeNotifier {
-  Timer timer;
   List<ChatModel> chat = [];
   var message = {
     ChatMap.receiver: 0,
@@ -31,115 +36,112 @@ class ChatProvider with ChangeNotifier {
     return pref.getString(UserMap.token);
   }
 
-  Future allMessages(var receiver) async {
-    chat.clear();
-    getToken().then((value) async {
+  Stream<List<ChatModel>> allMessages(var receiver) async* {
+    while (true) {
+      var token = await getToken();
+
       try {
-        var response = await http.post(
-          Uri.parse('$url/messages/get'),
-          body: {'receiver': '$receiver'},
-          headers: {HttpHeaders.authorizationHeader: value},
+        var response = await dio.post(
+          '/messages/get',
+          data: {'receiver': '$receiver'},
+          options: Options(headers: {HttpHeaders.authorizationHeader: token}),
         );
-        var data = (json.decode(response.body)) as List<dynamic>;
+
+        var data = (response.data) as List<dynamic>;
         data.forEach((element) {
-          Future.delayed(Duration(milliseconds: 500)).then((value) {
-            chat.add(ChatModel.fromJson(element));
-            notifyListeners();
-          });
-          notifyListeners();
+          var ct = ChatModel.fromJson(element);
+
+          if (chat.isEmpty) {
+            chat.add(ct);
+          } else {
+            if ((chat.firstWhere((c) => c.id == ct.id, orElse: () => null)) !=
+                null) {
+            } else {
+              chat.add(ct);
+            }
+          }
         });
-        notifyListeners();
+
+        yield chat;
       } catch (error) {
         throw error;
       }
-    });
+    }
   }
 
   List<MessageModel> messages = [];
-  Future getMessage() async {
+
+  Future getMessage(BuildContext context) async {
     messages.clear();
-    getToken().then((value) async {
+    getToken().then((token) async {
       try {
-        var response = await http.get(
-          Uri.parse('$url/messages/'),
-          headers: {HttpHeaders.authorizationHeader: value},
+        var response = await dio.get(
+          '/messages/',
+          options: Options(headers: {HttpHeaders.authorizationHeader: token}),
         );
-        var data = (json.decode(response.body)) as List<dynamic>;
+        var data = (response.data) as List<dynamic>;
         data.forEach((element) async {
-          var sender = await getParticularUser(value, element['sender']);
-          var receiver = await getParticularUser(value, element['receiver']);
+          var sender = await getParticularUser(token, element['sender']);
+          var receiver = await getParticularUser(token, element['receiver']);
+
           Future.delayed(Duration(milliseconds: 500)).then((value) {
-            messages.add(MessageModel.fromJson({
-              MessageMap.chat: ChatModel.fromJson(element),
-              MessageMap.sender: sender,
-              MessageMap.receiver: receiver,
-            }));
+            messages.add(
+              MessageModel.fromJson({
+                MessageMap.chat: ChatModel.fromJson(element),
+                MessageMap.sender: sender,
+                MessageMap.receiver: receiver,
+              }),
+            );
+
             notifyListeners();
           });
         });
-      } catch (error) {
-        throw error;
+        notifyListeners();
+      } on DioError catch (e) {
+        if (e.type == DioErrorType.connectTimeout) {
+          timeOut(context);
+        }
+      } catch (exception, stackTrace) {
+        await Sentry.captureException(
+          exception,
+          stackTrace: stackTrace,
+        );
       }
     });
-  }
-
-  refreshMessages(var receiver) async {
-    timer = Timer.periodic(Duration(seconds: 1), (_) {
-      print('refresh called $receiver');
-      getToken().then((value) async {
-        try {
-          var response = await http.post(
-            Uri.parse('$url/messages/get'),
-            body: {'receiver': '$receiver'},
-            headers: {HttpHeaders.authorizationHeader: value},
-          );
-          var data = (json.decode(response.body)) as List<dynamic>;
-          chat.clear();
-          data.forEach((element) {
-            if (!chat.asMap().containsKey(element['id'])) {
-              chat.add(ChatModel.fromJson(element));
-              notifyListeners();
-            }
-          });
-          notifyListeners();
-        } catch (error) {
-          throw error;
-        }
-      });
-    });
-  }
-
-  cancelTimer() async {
-    timer.cancel();
   }
 
   Future<UserModel> getParticularUser(token, uid) async {
     try {
-      var response = await http.get(
-        Uri.parse('$url/user/$uid'),
-        headers: {HttpHeaders.authorizationHeader: token},
+      var response = await dio.get(
+        '/user/$uid',
+        options: Options(headers: {HttpHeaders.authorizationHeader: token}),
       );
-      var data = json.decode(response.body);
+      var data = (response.data);
       return UserModel.fromJsonLocally(data);
-    } catch (error) {
-      throw error;
+    } catch (exception, stackTrace) {
+      await Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
     }
   }
 
   Future sendMessage() async {
-    getToken().then((value) async {
-      try {
-        var response = await http.post(
-          Uri.parse('$url/messages/new'),
-          body: message,
-          headers: {HttpHeaders.authorizationHeader: value},
-        );
-        var data = json.decode(response.body);
-        chat.add(ChatModel.fromJson(data));
-        notifyListeners();
-      } catch (error) {
-        throw error;
-      }
-    });
+    var token = await getToken();
+    try {
+      var response = await dio.post(
+        '/messages/new',
+        data: message,
+        options: Options(headers: {HttpHeaders.authorizationHeader: token}),
+      );
+      var data = (response.data);
+      chat.add(ChatModel.fromJson(data));
+      notifyListeners();
+    } catch (exception, stackTrace) {
+      await Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
+    }
   }
 }

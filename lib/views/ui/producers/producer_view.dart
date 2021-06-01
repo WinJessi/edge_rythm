@@ -1,11 +1,9 @@
 import 'package:edge_rythm/business_logic/model/producer.dart';
-import 'package:edge_rythm/business_logic/services/providers/chat.dart';
 import 'package:edge_rythm/views/ui/conversation.dart';
 import 'package:edge_rythm/views/ui/producers/price_list.dart';
 import 'package:edge_rythm/views/util/gradient_button.dart';
 import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class ProducersView extends StatefulWidget {
   static const route = '/producer_evenrt';
@@ -106,9 +104,7 @@ class _ProducersViewState extends State<ProducersView> {
                   onTap: () => Navigator.of(context).pushNamed(
                     Conversation.route,
                     arguments: [producer.producerID, producer.name],
-                  ).then((value) =>
-                      Provider.of<ChatProvider>(context, listen: false)
-                          .cancelTimer()),
+                  ),
                   child: Container(
                     width: 50,
                     height: 50,

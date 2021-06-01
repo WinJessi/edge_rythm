@@ -10,7 +10,8 @@ class ProducersNotification extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: FutureBuilder(
-        future: Provider.of<ChatProvider>(context, listen: false).getMessage(),
+        future: Provider.of<ChatProvider>(context, listen: false)
+            .getMessage(context),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());

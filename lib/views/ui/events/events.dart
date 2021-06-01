@@ -92,7 +92,7 @@ class EventsScreen extends StatelessWidget {
             ),
           ),
           FutureBuilder(
-            future: ticket.upcomingEvents(),
+            future: ticket.upcomingEvents(context),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return Row(
@@ -140,7 +140,7 @@ class EventsScreen extends StatelessWidget {
             ),
           ),
           FutureBuilder(
-            future: ticket.popularEvents(),
+            future: ticket.popularEvents(context),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return Row(

@@ -31,7 +31,6 @@ class Ticket {
           {'title': 'VIP', 'price': '15000'},
           {'title': 'VVIP', 'price': '150000'},
         ],
-        // priceList = json.decode(map[TicketMap.price_list]),
         showTitle = map[TicketMap.show_title];
 
   Map<String, dynamic> toJson() => {};

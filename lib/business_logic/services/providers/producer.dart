@@ -1,17 +1,25 @@
 import 'dart:convert';
-import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:edge_rythm/business_logic/model/appointment.dart';
+import 'package:edge_rythm/business_logic/model/category.dart';
 import 'package:edge_rythm/business_logic/model/producer.dart';
 import 'package:edge_rythm/business_logic/model/producer_appointment.dart';
 import 'package:edge_rythm/business_logic/model/user.dart';
+import 'package:edge_rythm/main.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:html_character_entities/html_character_entities.dart';
-import 'package:http/http.dart' as http;
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-var url = 'https://soft-demo.online/edge-api';
-var client = http.Client();
+BaseOptions options = new BaseOptions(
+  baseUrl: dotenv.env['BASE_URL'],
+  connectTimeout: 5000,
+  receiveTimeout: 3000,
+);
+
+Dio dio = new Dio(options);
 
 class ProducersProvider with ChangeNotifier {
   List<Producers> producers = [];
@@ -24,92 +32,202 @@ class ProducersProvider with ChangeNotifier {
     AptMap.time: '12:00 PM',
   };
 
+  var time = {
+    'hour': '01',
+    'minute': '00',
+    'time': 'AM',
+  };
+
   Future<String> getToken() async {
     var pref = await SharedPreferences.getInstance();
     return pref.getString(UserMap.token);
   }
 
-  Future fetchProducers() async {
+  List<Category> _categories = [];
+
+  List<Category> get categories {
+    return [..._categories];
+  }
+
+  realtimeSearch(var search) async {
+    prods.retainWhere(
+        (element) => element.name.toLowerCase().contains(search.toLowerCase()));
+    print(prods.length);
+    notifyListeners();
+  }
+
+  Future<void> fetchCategories(BuildContext context) async {
+    if (_categories.isEmpty) {
+      try {
+        var response = await dio.get('/admin/category');
+        var data = (response.data);
+
+        (data as List<dynamic>).forEach((element) {
+          _categories.add(Category.fromJson(element));
+        });
+
+        notifyListeners();
+      } on DioError catch (e) {
+        if (e.type == DioErrorType.connectTimeout) {
+          timeOut(context);
+        }
+      } catch (exception, stackTrace) {
+        await Sentry.captureException(
+          exception,
+          stackTrace: stackTrace,
+        );
+      }
+    }
+  }
+
+  List<Producers> prods = [];
+  Future<List<Producers>> getProducer(var cat) async {
+    prods.clear();
+    prods = [...producers];
+    prods.retainWhere((element) => element.role == cat);
+    return prods;
+  }
+
+  Future<void> fetchProducers(BuildContext context) async {
     producers.clear();
     getToken().then((token) async {
       try {
-        var response = await http.get(
-          Uri.parse('$url/producer/'),
-          headers: {HttpHeaders.authorizationHeader: token},
+        var response = await dio.get(
+          '/producer/',
+          options: Options(headers: {'Authorization': '$token'}),
         );
-        var data = json.decode(response.body) as List<dynamic>;
+        var data = (response.data) as List<dynamic>;
+
         data.forEach((element) {
           producers.add(Producers.fromJson(element));
-          producers.shuffle();
         });
+
         notifyListeners();
-      } catch (error) {
-        throw error;
+      } on DioError catch (e) {
+        if (e.type == DioErrorType.connectTimeout) {
+          timeOut(context);
+        }
+      } catch (exception, stackTrace) {
+        await Sentry.captureException(
+          exception,
+          stackTrace: stackTrace,
+        );
       }
     });
+  }
+
+  Future setTime(var key, var value) async {
+    time.update(key, (_) => value);
+    notifyListeners();
   }
 
   Future setAppointmentParameters(var key, var value) async {
     appointment.update(key, (_) => value);
-    print(appointment);
     notifyListeners();
   }
 
-  Future<void> confirmAppointment(var id) async {
+  Future<void> confirmAppointment(var id, BuildContext context) async {
+    appointment.update(AptMap.time,
+        (_) => '${time['hour']}:${time['minute']} ${time['time']}');
+
     var data = HtmlCharacterEntities.encode(json.encode(appointment));
     getToken().then((token) async {
       try {
-        await http.post(
-          Uri.parse('$url/appointment/add'),
-          body: {'producer_id': '$id', 'appoinment_info': data},
-          headers: {HttpHeaders.authorizationHeader: token},
+        await dio.post(
+          '/appointment/add',
+          data: {'producer_id': '$id', 'appoinment_info': data},
+          options: Options(headers: {'Authorization': '$token'}),
         );
         notifyListeners();
-      } catch (error) {
-        throw error;
+      } on DioError catch (e) {
+        if (e.type == DioErrorType.connectTimeout) {
+          timeOut(context);
+        }
+      } catch (exception, stackTrace) {
+        await Sentry.captureException(
+          exception,
+          stackTrace: stackTrace,
+        );
       }
     });
   }
 
-  // List<Map<DateTime, List<Appointment>>> groupedStudents = [];
-  Future fetchAppointments() async {
+  Future fetchAppointments(BuildContext context) async {
     getToken().then((token) async {
       appointments.clear();
       try {
-        var response = await http.get(
-          Uri.parse('$url/appointment/'),
-          headers: {HttpHeaders.authorizationHeader: token},
+        var response = await dio.get(
+          '/appointment/',
+          options: Options(headers: {'Authorization': '$token'}),
         );
-        var data = json.decode(response.body) as List<dynamic>;
+        var data = (response.data) as List<dynamic>;
         data.forEach((element) {
           appointments.add(Appointment.fromJson(element));
         });
 
         notifyListeners();
-      } catch (error) {
-        throw error;
+      } on DioError catch (e) {
+        if (e.type == DioErrorType.connectTimeout) {
+          timeOut(context);
+        }
+      } catch (exception, stackTrace) {
+        await Sentry.captureException(
+          exception,
+          stackTrace: stackTrace,
+        );
       }
     });
   }
 
   List<ProducerAppointment> pappointments = [];
-  Future fetchProducerAppointments() async {
+  Future fetchProducerAppointments(BuildContext context) async {
     pappointments.clear();
     getToken().then((token) async {
       appointments.clear();
       try {
-        var response = await http.get(
-          Uri.parse('$url/appointment/producer'),
-          headers: {HttpHeaders.authorizationHeader: token},
+        var response = await dio.get(
+          '/appointment/producer',
+          options: Options(headers: {'Authorization': '$token'}),
         );
-        var data = json.decode(response.body) as List<dynamic>;
+        var data = (response.data) as List<dynamic>;
         data.forEach((element) {
           pappointments.add(ProducerAppointment.fromJson(element));
         });
 
         notifyListeners();
-      } catch (error) {
-        throw error;
+      } on DioError catch (e) {
+        if (e.type == DioErrorType.connectTimeout) {
+          timeOut(context);
+        }
+      } catch (exception, stackTrace) {
+        await Sentry.captureException(
+          exception,
+          stackTrace: stackTrace,
+        );
+      }
+    });
+  }
+
+  Future appointmentFulfilled(var id, BuildContext context) async {
+    getToken().then((token) async {
+      try {
+        await dio.put(
+          '/appointment/$id',
+          options: Options(headers: {'Authorization': '$token'}),
+        );
+
+        appointments.removeWhere((element) => element.id == id);
+
+        notifyListeners();
+      } on DioError catch (e) {
+        if (e.type == DioErrorType.connectTimeout) {
+          timeOut(context);
+        }
+      } catch (exception, stackTrace) {
+        await Sentry.captureException(
+          exception,
+          stackTrace: stackTrace,
+        );
       }
     });
   }

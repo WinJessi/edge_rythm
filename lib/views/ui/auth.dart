@@ -116,21 +116,24 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
           ),
           // preloader here
           if (_isLoading)
-            Align(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: Card(
-                  child: Container(
-                    width: 150,
-                    height: 150,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Image.asset(
-                      'assets/images/loading.gif',
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                      height: double.maxFinite,
+            Scaffold(
+              backgroundColor: Colors.transparent,
+              body: Center(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Card(
+                    child: Container(
+                      width: 150,
+                      height: 150,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Image.asset(
+                        'assets/images/loading.gif',
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: double.maxFinite,
+                      ),
                     ),
                   ),
                 ),
@@ -157,10 +160,10 @@ class _LoginState extends State<Login> {
     try {
       AuthenticationScreen.globalKey.currentState.showLoader();
       await Provider.of<UserProvider>(context, listen: false)
-          .login()
+          .login(context)
           .then((value) {
         print(value.role);
-        if (value.role == 'USER') {
+        if (value != null) if (value.role == 'USER') {
           Navigator.of(context).pushNamedAndRemoveUntil(
               WhatDoYouWantScreen.route, (route) => false);
         } else {
@@ -170,9 +173,9 @@ class _LoginState extends State<Login> {
       });
       AuthenticationScreen.globalKey.currentState.hideLoader();
     } catch (error) {
+      AuthenticationScreen.globalKey.currentState.hideLoader();
       throw error;
     }
-    AuthenticationScreen.globalKey.currentState.hideLoader();
   }
 
   @override
@@ -279,7 +282,7 @@ class _SignupState extends State<Signup> {
     try {
       AuthenticationScreen.globalKey.currentState.showLoader();
       await Provider.of<UserProvider>(context, listen: false)
-          .register()
+          .register(context)
           .then((value) {
         if (value.role == 'USER') {
           Navigator.of(context).pushNamedAndRemoveUntil(

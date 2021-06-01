@@ -1,5 +1,7 @@
 import 'package:edge_rythm/business_logic/model/producer_appointment.dart';
 import 'package:edge_rythm/business_logic/services/providers/producer.dart';
+import 'package:edge_rythm/business_logic/services/providers/user.dart';
+import 'package:edge_rythm/views/ui/producer/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -36,9 +38,18 @@ class ProducerHomeScreen extends StatelessWidget {
           ],
         ),
         actions: [
-          CircleAvatar(
-            backgroundImage: NetworkImage(
-              'https://pngimage.net/wp-content/uploads/2018/06/listening-icon-png-3.png',
+          Consumer<UserProvider>(
+            builder: (context, value, child) => GestureDetector(
+              onTap: () =>
+                  Navigator.of(context).pushNamed(ProducerProfile.route),
+              child: Hero(
+                tag: 'profile',
+                child: CircleAvatar(
+                  backgroundImage: NetworkImage(
+                    value.producer.photo,
+                  ),
+                ),
+              ),
             ),
           ),
           SizedBox(width: 15),
@@ -46,11 +57,9 @@ class ProducerHomeScreen extends StatelessWidget {
       ),
       body: FutureBuilder(
         future: Provider.of<ProducersProvider>(context, listen: false)
-            .fetchProducerAppointments(),
+            .fetchProducerAppointments(context),
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return SizedBox();
-          } else {
+          if (snapshot.connectionState == ConnectionState.done) {
             return Consumer<ProducersProvider>(
               builder: (context, value, child) => value.pappointments.length < 1
                   ? Column(
@@ -74,8 +83,19 @@ class ProducerHomeScreen extends StatelessWidget {
                       children: [
                         Padding(
                           padding: const EdgeInsets.all(15.0),
-                          child: Text('Date',
-                              style: Theme.of(context).textTheme.headline2),
+                          child: Row(
+                            children: [
+                              Text(
+                                'My Schedules',
+                                style: Theme.of(context).textTheme.headline2,
+                              ),
+                              Spacer(),
+                              Text(
+                                'swipe if done',
+                                style: Theme.of(context).textTheme.headline6,
+                              )
+                            ],
+                          ),
                         ),
                         for (var i = 0; i < value.pappointments.length; i++)
                           HistoryCard(
@@ -85,6 +105,9 @@ class ProducerHomeScreen extends StatelessWidget {
                     ),
             );
           }
+          return Center(
+            child: CircularProgressIndicator(),
+          );
         },
       ),
     );
@@ -101,67 +124,102 @@ class HistoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => appointmentInfo(context, producerAppointment),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Padding(
-          //   padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-          //   child: Text(
-          //     '$time',
-          //     style: Theme.of(context).textTheme.headline2,
-          //   ),
-          // ),
-          // for (var i = 0; i < appointment.length; i++)
-          Container(
-            width: double.infinity,
-            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-            margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            decoration: BoxDecoration(
-              color:
-                  // date.isBefore(DateTime.now())
-                  //     ? Colors.red.withOpacity(.3)
-                  //     :
-                  Theme.of(context).primaryColor,
-              borderRadius: BorderRadius.circular(20),
+    return Dismissible(
+      key: ValueKey(producerAppointment.id),
+      direction: DismissDirection.endToStart,
+      behavior: HitTestBehavior.translucent,
+      onDismissed: (direction) {
+        Provider.of<ProducersProvider>(context, listen: false)
+            .appointmentFulfilled(producerAppointment.id, context);
+      },
+      background: Container(
+        decoration: BoxDecoration(color: Colors.green),
+        width: double.infinity,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Text(
+              'Done',
+              style: Theme.of(context)
+                  .textTheme
+                  .headline4
+                  .copyWith(color: Colors.white),
             ),
-            child: Row(
-              children: [
-                CircleAvatar(
-                  maxRadius: 30,
-                  backgroundImage: NetworkImage(
-                      'https://pngimage.net/wp-content/uploads/2018/06/listening-icon-png-3.png'),
-                ),
-                SizedBox(width: 15),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Text(
-                        producerAppointment.userModel.name,
-                        style: Theme.of(context).textTheme.headline2,
+            Icon(Icons.delete, color: Colors.white),
+            SizedBox(width: 15)
+          ],
+        ),
+      ),
+      child: GestureDetector(
+        onTap: () => appointmentInfo(context, producerAppointment),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Padding(
+            //   padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+            //   child: Text(
+            //     '$time',
+            //     style: Theme.of(context).textTheme.headline2,
+            //   ),
+            // ),
+            // for (var i = 0; i < appointment.length; i++)
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+              margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              decoration: BoxDecoration(
+                color:
+                    // date.isBefore(DateTime.now())
+                    //     ? Colors.red.withOpacity(.3)
+                    //     :
+                    Theme.of(context).primaryColor,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).primaryColor,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Theme.of(context).accentColor,
+                        width: .5,
                       ),
-                      SizedBox(height: 5),
-                      Text(
-                        producerAppointment.userModel.email,
-                        style: Theme.of(context)
-                            .textTheme
-                            .headline4
-                            .copyWith(color: Colors.white),
-                      ),
-                    ],
+                    ),
+                    child: Image.asset('assets/images/rhythm.png'),
                   ),
-                ),
-                SizedBox(width: 15),
-                IconButton(
-                  icon: Icon(Icons.arrow_forward_ios),
-                  onPressed: () {},
-                )
-              ],
+                  SizedBox(width: 15),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text(
+                          producerAppointment.userModel.name,
+                          style: Theme.of(context).textTheme.headline2,
+                        ),
+                        SizedBox(height: 5),
+                        Text(
+                          producerAppointment.userModel.email,
+                          style: Theme.of(context)
+                              .textTheme
+                              .headline4
+                              .copyWith(color: Colors.white),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(width: 15),
+                  IconButton(
+                    icon: Icon(Icons.arrow_forward_ios),
+                    onPressed: () {},
+                  )
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -203,6 +261,20 @@ class HistoryCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  ListTile(
+                    title: Text(
+                      appointment.info['title'],
+                      style: Theme.of(context).textTheme.headline3,
+                    ),
+                    subtitle: Text(
+                      'Title',
+                      textAlign: TextAlign.start,
+                      style: Theme.of(context)
+                          .textTheme
+                          .headline6
+                          .copyWith(color: Colors.black),
+                    ),
+                  ),
                   ListTile(
                     title: Text(
                       appointment.info['session'],

@@ -1,5 +1,6 @@
 import 'package:edge_rythm/views/ui/events/home.dart';
 import 'package:edge_rythm/views/ui/producers/home.dart';
+import 'package:edge_rythm/views/ui/producers/profile.dart';
 import 'package:edge_rythm/views/util/my_drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -52,10 +53,25 @@ class HomeScreen extends StatelessWidget {
             ],
           ),
           actions: [
-            CircleAvatar(
-              maxRadius: 15,
-              backgroundImage: NetworkImage(
-                'https://pngimage.net/wp-content/uploads/2018/06/listening-icon-png-3.png',
+            GestureDetector(
+              onTap: () => Navigator.of(context).pushNamed(UserProfile.route),
+              child: Hero(
+                tag: 'profile',
+                child: Container(
+                  height: 30,
+                  width: 30,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).primaryColor,
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Theme.of(context).accentColor,
+                      width: .5,
+                    ),
+                  ),
+                  child: Image.asset(
+                    'assets/images/rhythm.png',
+                  ),
+                ),
               ),
             ),
             SizedBox(width: 15)

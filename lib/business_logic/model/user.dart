@@ -39,4 +39,5 @@ class UserMap {
   static const user = 'user';
   static const role = 'role';
   static const pwd = 'password';
+  static const producer = 'producer';
 }

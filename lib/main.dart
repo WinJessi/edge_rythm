@@ -1,9 +1,9 @@
 import 'package:edge_rythm/business_logic/services/providers/chat.dart';
-import 'package:edge_rythm/business_logic/services/providers/holiday.dart';
 import 'package:edge_rythm/business_logic/services/providers/nav_provider.dart';
 import 'package:edge_rythm/business_logic/services/providers/producer.dart';
 import 'package:edge_rythm/business_logic/services/providers/ticket.dart';
 import 'package:edge_rythm/business_logic/services/providers/user.dart';
+import 'package:edge_rythm/views/no_internet.dart';
 import 'package:edge_rythm/views/ui/auth.dart';
 import 'package:edge_rythm/views/ui/conversation.dart';
 import 'package:edge_rythm/views/ui/events/event_view.dart';
@@ -12,22 +12,39 @@ import 'package:edge_rythm/views/ui/events/see_all.dart';
 import 'package:edge_rythm/views/ui/events/ticket.dart';
 import 'package:edge_rythm/views/ui/home.dart';
 import 'package:edge_rythm/views/ui/producer/home.dart';
+import 'package:edge_rythm/views/ui/producer/profile.dart';
+import 'package:edge_rythm/views/ui/producer/profile_edit.dart';
 import 'package:edge_rythm/views/ui/producers/home.dart';
 import 'package:edge_rythm/views/ui/producers/payment.dart';
 import 'package:edge_rythm/views/ui/producers/price_list.dart';
 import 'package:edge_rythm/views/ui/producers/producer_view.dart';
+import 'package:edge_rythm/views/ui/producers/profile.dart';
+import 'package:edge_rythm/views/ui/producers/profile_edit.dart';
 import 'package:edge_rythm/views/ui/producers/schedule.dart';
 import 'package:edge_rythm/views/ui/splash.dart';
 import 'package:edge_rythm/views/ui/streaming/home.dart';
 import 'package:edge_rythm/views/ui/welcome.dart';
 import 'package:edge_rythm/views/ui/what.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
-  runApp(MyApp());
+Future<void> main() async {
+  await dotenv.load(fileName: ".env");
+  await SentryFlutter.init(
+    (options) {
+      options.dsn =
+          'https://41b032574cd242f688b65550f4e794b9@o745490.ingest.sentry.io/5794613';
+    },
+    appRunner: () => runApp(MyApp()),
+  );
+}
+
+void timeOut(BuildContext context) {
+  Navigator.of(context).pushReplacementNamed(NoInternet.route);
 }
 
 class MyApp extends StatefulWidget {
@@ -56,13 +73,12 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider.value(value: UserProvider()),
         ChangeNotifierProvider.value(value: NavProvider()),
         ChangeNotifierProvider.value(value: TicketProvider()),
-        ChangeNotifierProvider.value(value: HolidayProvider()),
         ChangeNotifierProvider.value(value: ProducersProvider()),
         ChangeNotifierProvider.value(value: ChatProvider()),
       ],
       child: Consumer<UserProvider>(
         builder: (context, value, child) => MaterialApp(
-          title: 'Edge Rythm',
+          title: dotenv.env['APP_NAME'],
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
             primarySwatch: Colors.grey,
@@ -169,6 +185,11 @@ class _MyAppState extends State<MyApp> {
             ProducerPayment.route: (_) => ProducerPayment(),
             ProducerHome.route: (_) => ProducerHome(),
             Conversation.route: (_) => Conversation(),
+            UserProfile.route: (_) => UserProfile(),
+            ProfileEdit.route: (_) => ProfileEdit(),
+            ProducerProfile.route: (_) => ProducerProfile(),
+            ProducerProfileEdit.route: (_) => ProducerProfileEdit(),
+            NoInternet.route: (_) => NoInternet(),
           },
         ),
       ),

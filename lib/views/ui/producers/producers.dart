@@ -1,18 +1,30 @@
 import 'dart:ui';
 
+import 'package:edge_rythm/business_logic/model/category.dart';
 import 'package:edge_rythm/business_logic/model/producer.dart';
 import 'package:edge_rythm/business_logic/services/providers/producer.dart';
 import 'package:edge_rythm/views/ui/producers/producer_view.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shimmer/shimmer.dart';
 
-class ProducerScreen extends StatelessWidget {
+class ProducerScreen extends StatefulWidget {
   const ProducerScreen({Key key}) : super(key: key);
 
   @override
+  _ProducerScreenState createState() => _ProducerScreenState();
+}
+
+class _ProducerScreenState extends State<ProducerScreen> {
+  // TextEditingController search = new TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    List<String> categories = ['Producers', 'Sound Engineer'];
+    var producer = Provider.of<ProducersProvider>(context, listen: false);
     return Scaffold(
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -38,6 +50,13 @@ class ProducerScreen extends StatelessWidget {
                     ),
                     alignment: Alignment.center,
                     child: TextField(
+                      // controller: search,
+                      onChanged: (value) {
+                        if (value.isNotEmpty) {
+                          producer.realtimeSearch(value);
+                          // setState(() {});
+                        }
+                      },
                       autofocus: false,
                       decoration: InputDecoration(
                         fillColor: Colors.transparent,
@@ -73,31 +92,46 @@ class ProducerScreen extends StatelessWidget {
           ),
           SizedBox(height: 5),
           Expanded(
-            child: DefaultTabController(
-              length: categories.length,
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 30),
-                    child: TabBar(
-                      tabs: categories
-                          .map((e) => Padding(
-                                padding: const EdgeInsets.all(15.0),
-                                child: Text(e),
-                              ))
-                          .toList(),
-                      indicatorSize: TabBarIndicatorSize.label,
+            child: FutureBuilder(
+              future: Future.wait([
+                Provider.of<ProducersProvider>(context, listen: false)
+                    .fetchCategories(context),
+                Provider.of<ProducersProvider>(context, listen: false)
+                    .fetchProducers(context),
+              ]),
+              builder: (context, snapshot) {
+                return Consumer<ProducersProvider>(
+                  builder: (context, value, child) => DefaultTabController(
+                    length: value.categories.length,
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 30),
+                          child: TabBar(
+                            isScrollable: true,
+                            tabs: value.categories
+                                .map((e) => Padding(
+                                      padding: const EdgeInsets.all(15.0),
+                                      child: Text(e.category),
+                                    ))
+                                .toList(),
+                            indicatorSize: TabBarIndicatorSize.label,
+                          ),
+                        ),
+                        Expanded(
+                          child: TabBarView(
+                            children: value.categories
+                                .map((e) => CategoryView(category: e))
+                                .toList(),
+                          ),
+                        )
+                      ],
                     ),
                   ),
-                  Expanded(
-                    child: TabBarView(
-                      children: categories.map((e) => CategoryView()).toList(),
-                    ),
-                  )
-                ],
-              ),
+                );
+              },
             ),
-          )
+          ),
         ],
       ),
     );
@@ -105,72 +139,29 @@ class ProducerScreen extends StatelessWidget {
 }
 
 class CategoryView extends StatelessWidget {
-  const CategoryView({Key key}) : super(key: key);
+  const CategoryView({
+    Key key,
+    this.category,
+  }) : super(key: key);
+
+  final Category category;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: FutureBuilder(
         future: Provider.of<ProducersProvider>(context, listen: false)
-            .fetchProducers(),
+            .getProducer(category.category),
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Column(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
-                  child: Shimmer.fromColors(
-                    baseColor: Colors.grey[100],
-                    highlightColor: Colors.grey[50],
-                    child: Container(
-                      width: double.infinity,
-                      height: 80,
-                      margin: EdgeInsets.symmetric(horizontal: 3),
-                      decoration: BoxDecoration(
-                        color: Colors.white24,
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            margin: EdgeInsets.symmetric(
-                              vertical: 3,
-                              horizontal: 5,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white38,
-                            ),
-                            height: 70,
-                          ),
-                          SizedBox(width: 30),
-                          Container(
-                            margin: EdgeInsets.symmetric(
-                              vertical: 3,
-                              horizontal: 5,
-                            ),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20),
-                              color: Colors.white54,
-                            ),
-                            height: 45,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            );
-          } else {
-            return Consumer<ProducersProvider>(
-              builder: (context, value, child) => ListView(
-                children: [
-                  for (var i = 0; i < value.producers.length; i++)
-                    ProducerCard(producers: value.producers[i]),
-                  SizedBox(height: 15),
-                ],
-              ),
-            );
-          }
+          if (snapshot.data == null) return SizedBox();
+          var data = snapshot.data as List<Producers>;
+          return ListView(
+            children: [
+              for (var i = 0; i < data.length; i++)
+                ProducerCard(producers: data[i]),
+              SizedBox(height: 15),
+            ],
+          );
         },
       ),
     );

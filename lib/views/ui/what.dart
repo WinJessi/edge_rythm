@@ -1,3 +1,4 @@
+import 'package:edge_rythm/business_logic/services/providers/producer.dart';
 import 'package:edge_rythm/views/ui/streaming/home.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -38,6 +39,19 @@ class _WhatDoYouWantScreenState extends State<WhatDoYouWantScreen> {
         Navigator.of(context).pushNamed(StreamingMusicScree.route);
         break;
     }
+  }
+
+  @override
+  void initState() {
+    Future.delayed(Duration.zero).then((value) {
+      Future.wait([
+        Provider.of<ProducersProvider>(context, listen: false)
+            .fetchCategories(context),
+        Provider.of<ProducersProvider>(context, listen: false)
+            .fetchProducers(context),
+      ]);
+    });
+    super.initState();
   }
 
   @override

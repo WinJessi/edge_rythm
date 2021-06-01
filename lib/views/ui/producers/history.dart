@@ -12,7 +12,7 @@ class ProducersHistory extends StatelessWidget {
     return Scaffold(
       body: FutureBuilder(
         future: Provider.of<ProducersProvider>(context, listen: false)
-            .fetchAppointments(),
+            .fetchAppointments(context),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return SizedBox();
@@ -20,6 +20,14 @@ class ProducersHistory extends StatelessWidget {
             return Consumer<ProducersProvider>(
               builder: (context, value, child) => ListView(
                 children: [
+                  Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                    child: Text(
+                      'My Schedule',
+                      style: Theme.of(context).textTheme.headline2,
+                    ),
+                  ),
                   for (var i = 0; i < value.appointments.length; i++)
                     HistoryCard(appointment: value.appointments[i])
                 ],

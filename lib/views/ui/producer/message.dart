@@ -1,7 +1,8 @@
-import 'package:edge_rythm/business_logic/model/chat.dart';
 import 'package:edge_rythm/business_logic/model/message.dart';
 import 'package:edge_rythm/business_logic/services/providers/chat.dart';
+import 'package:edge_rythm/business_logic/services/providers/user.dart';
 import 'package:edge_rythm/views/ui/conversation.dart';
+import 'package:edge_rythm/views/ui/producer/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -11,8 +12,28 @@ class ProducerMessage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        actions: [
+          Consumer<UserProvider>(
+            builder: (context, value, child) => GestureDetector(
+              onTap: () =>
+                  Navigator.of(context).pushNamed(ProducerProfile.route),
+              child: Hero(
+                tag: 'profile',
+                child: CircleAvatar(
+                  backgroundImage: NetworkImage(
+                    value.producer.photo,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          SizedBox(width: 15),
+        ],
+      ),
       body: FutureBuilder(
-        future: Provider.of<ChatProvider>(context, listen: false).getMessage(),
+        future: Provider.of<ChatProvider>(context, listen: false)
+            .getMessage(context),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
@@ -38,6 +59,13 @@ class ProducerMessage extends StatelessWidget {
                     )
                   : ListView(
                       children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 15),
+                          child: Text(
+                            'My Messages',
+                            style: Theme.of(context).textTheme.headline2,
+                          ),
+                        ),
                         SizedBox(height: 15),
                         for (var i = 0; i < value.messages.length; i++)
                           MessageCard(model: value.messages[i]),
@@ -55,19 +83,17 @@ class MessageCard extends StatelessWidget {
   const MessageCard({
     Key key,
     this.model,
+    this.from,
   }) : super(key: key);
 
   final MessageModel model;
+  final String from;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => Navigator.of(context).pushNamed(Conversation.route,
-          arguments: [
-            model.chat.receiver,
-            model.receiver.name
-          ]).then((value) =>
-          Provider.of<ChatProvider>(context, listen: false).cancelTimer()),
+          arguments: [model.chat.receiver, model.receiver.name]),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

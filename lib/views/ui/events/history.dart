@@ -23,7 +23,7 @@ class EventsHistory extends StatelessWidget {
     return Scaffold(
       body: FutureBuilder(
         future: Provider.of<TicketProvider>(context, listen: false)
-            .fetchMyTickets(),
+            .fetchMyTickets(context),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return SizedBox();
@@ -71,7 +71,7 @@ class HistoryECard extends StatelessWidget {
       direction: DismissDirection.endToStart,
       onDismissed: (direction) async {
         await Provider.of<TicketProvider>(context, listen: false)
-            .deleteTicket(myTicket.id);
+            .deleteTicket(myTicket.id, context);
       },
       background: Container(
         decoration: BoxDecoration(

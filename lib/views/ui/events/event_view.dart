@@ -25,7 +25,7 @@ class _EventViewScreenState extends State<EventViewScreen> {
     });
     try {
       await Provider.of<TicketProvider>(context, listen: false)
-          .newTicket(id, generateBookingID());
+          .newTicket(id, generateBookingID(), context);
       Navigator.of(context)
           .pushReplacementNamed(TicketScreen.route, arguments: true);
       setState(() {

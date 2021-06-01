@@ -1,4 +1,4 @@
-package com.example.edge_rythm
+package com.edgerhythm
 
 import io.flutter.embedding.android.FlutterActivity
 

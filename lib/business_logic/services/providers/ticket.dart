@@ -1,15 +1,20 @@
-import 'dart:convert';
-import 'dart:io';
-
+import 'package:dio/dio.dart';
 import 'package:edge_rythm/business_logic/model/myticket.dart';
 import 'package:edge_rythm/business_logic/model/ticket.dart';
 import 'package:edge_rythm/business_logic/model/user.dart';
+import 'package:edge_rythm/main.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-var url = 'https://soft-demo.online/edge-api/';
-var client = http.Client();
+BaseOptions options = new BaseOptions(
+  baseUrl: dotenv.env['BASE_URL'],
+  connectTimeout: 5000,
+  receiveTimeout: 3000,
+);
+
+Dio dio = new Dio(options);
 
 class TicketProvider with ChangeNotifier {
   List<Ticket> utickets = [];
@@ -30,33 +35,47 @@ class TicketProvider with ChangeNotifier {
     return pref.getString(UserMap.token);
   }
 
-  Future<void> upcomingEvents() async {
+  Future<void> upcomingEvents(BuildContext context) async {
     utickets.clear();
     try {
-      var response = await client.get(Uri.parse('$url/ticket/'));
-      var res = json.decode(response.body) as List<dynamic>;
+      var response = await dio.get('/ticket/');
+      var res = (response.data) as List<dynamic>;
       res.forEach((element) {
         var model = Ticket.fromJson(element);
         utickets.add(model);
       });
       notifyListeners();
-    } catch (error) {
-      throw error;
+    } on DioError catch (e) {
+      if (e.type == DioErrorType.connectTimeout) {
+        timeOut(context);
+      }
+    } catch (exception, stackTrace) {
+      await Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
     }
   }
 
-  Future<void> popularEvents() async {
+  Future<void> popularEvents(BuildContext context) async {
     ptickets.clear();
     try {
-      var response = await client.get(Uri.parse('$url/ticket/popular'));
-      var res = json.decode(response.body) as List<dynamic>;
+      var response = await dio.get('/ticket/popular');
+      var res = (response.data) as List<dynamic>;
       res.forEach((element) {
         var model = Ticket.fromJson(element);
         ptickets.add(model);
       });
       notifyListeners();
-    } catch (error) {
-      throw error;
+    } on DioError catch (e) {
+      if (e.type == DioErrorType.connectTimeout) {
+        timeOut(context);
+      }
+    } catch (exception, stackTrace) {
+      await Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
     }
   }
 
@@ -65,62 +84,82 @@ class TicketProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> newTicket(id, booking) async {
+  Future<void> newTicket(id, booking, BuildContext context) async {
     myTickets.clear();
-    getToken().then((value) async {
+    getToken().then((token) async {
       try {
-        var response = await client.post(Uri.parse('$url/tickets/add'), body: {
-          MyTicketMap.ticket_id: '$id',
-          MyTicketMap.ticket_type: tickets[TMap.title],
-          MyTicketMap.booking_id: '$booking',
-          MyTicketMap.how_many: '${tickets[TMap.howMany]}',
-        }, headers: {
-          HttpHeaders.authorizationHeader: value
-        });
+        var response = await dio.post('/tickets/add',
+            data: {
+              MyTicketMap.ticket_id: '$id',
+              MyTicketMap.ticket_type: tickets[TMap.title],
+              MyTicketMap.booking_id: '$booking',
+              MyTicketMap.how_many: '${tickets[TMap.howMany]}',
+            },
+            options: Options(headers: {'Authorization': '$token'}));
 
-        var data = json.decode(response.body);
+        var data = (response.data);
         myTickets.add(MyTicket.fromJson(data));
         notifyListeners();
-      } catch (error) {
-        throw error;
+      } on DioError catch (e) {
+        if (e.type == DioErrorType.connectTimeout) {
+          timeOut(context);
+        }
+      } catch (exception, stackTrace) {
+        await Sentry.captureException(
+          exception,
+          stackTrace: stackTrace,
+        );
       }
     });
   }
 
   List<MyTicket> myTickets = [];
-  Future<void> fetchMyTickets() async {
+  Future<void> fetchMyTickets(BuildContext context) async {
     myTickets.clear();
-    getToken().then((value) async {
+    getToken().then((token) async {
       try {
-        var response = await client.get(
-          Uri.parse('$url/tickets/'),
-          headers: {HttpHeaders.authorizationHeader: value},
+        var response = await dio.get(
+          '/tickets/all',
+          options: Options(headers: {'Authorization': '$token'}),
         );
 
-        // print(response.body);
-        var data = (json.decode(response.body)) as List<dynamic>;
+        var data = (response.data) as List<dynamic>;
         data.forEach((element) {
           myTickets.add(MyTicket.fromJson(element));
         });
 
         notifyListeners();
-      } catch (error) {
-        throw error;
+      } on DioError catch (e) {
+        if (e.type == DioErrorType.connectTimeout) {
+          timeOut(context);
+        }
+      } catch (exception, stackTrace) {
+        await Sentry.captureException(
+          exception,
+          stackTrace: stackTrace,
+        );
       }
     });
   }
 
-  Future<void> deleteTicket(var id) async {
-    getToken().then((value) async {
+  Future<void> deleteTicket(var id, BuildContext context) async {
+    getToken().then((token) async {
       try {
-        await client.delete(
-          Uri.parse('$url/tickets/$id'),
-          headers: {HttpHeaders.authorizationHeader: value},
+        await dio.delete(
+          '/tickets/$id',
+          options: Options(headers: {'Authorization': '$token'}),
         );
         myTickets.removeWhere((element) => element.id == id);
         notifyListeners();
-      } catch (error) {
-        throw error;
+      } on DioError catch (e) {
+        if (e.type == DioErrorType.connectTimeout) {
+          timeOut(context);
+        }
+      } catch (exception, stackTrace) {
+        await Sentry.captureException(
+          exception,
+          stackTrace: stackTrace,
+        );
       }
     });
   }

@@ -1,12 +1,11 @@
 import 'package:achievement_view/achievement_view.dart';
 import 'package:achievement_view/achievement_widget.dart';
-import 'package:duration_picker/duration_picker.dart';
 import 'package:edge_rythm/business_logic/model/producer.dart';
-import 'package:edge_rythm/business_logic/services/providers/holiday.dart';
 import 'package:edge_rythm/business_logic/services/providers/producer.dart';
 import 'package:edge_rythm/views/ui/producers/payment.dart';
 import 'package:edge_rythm/views/util/gradient_button.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -19,13 +18,11 @@ class ScheduleAppointment extends StatefulWidget {
 }
 
 class _ScheduleAppointmentState extends State<ScheduleAppointment> {
-  CalendarController _calendarController;
   var _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _calendarController = CalendarController();
   }
 
   @override
@@ -70,26 +67,39 @@ class _ScheduleAppointmentState extends State<ScheduleAppointment> {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: TableCalendar(
-                  calendarController: _calendarController,
-                  initialSelectedDay: DateTime.now(),
-                  onCalendarCreated: (first, last, format) =>
-                      Future.delayed(Duration.zero).then(
+                  firstDay: DateTime.now(),
+                  lastDay: DateTime.now().add(Duration(hours: 4380)),
+                  focusedDay: DateTime.now(),
+                  onCalendarCreated: (_) => Future.delayed(Duration.zero).then(
                     (value) => pro.setAppointmentParameters(
                       AptMap.date,
                       DateTime.now().toIso8601String(),
                     ),
                   ),
-                  onDaySelected: (day, events, holidays) async {
-                    Provider.of<HolidayProvider>(context, listen: false)
-                        .checkDate(day)
-                        .then((value) {
-                      if (value.isNotEmpty) {
+                  onDaySelected: (day, events) async {
+                    if (day.isBefore(DateTime.now())) {
+                      AchievementView(
+                        context,
+                        title: "Invalid date",
+                        subTitle: "You can\'t choose a day before current date",
+                        icon: Icon(Icons.calendar_today, color: Colors.white),
+                        typeAnimationContent: AnimationTypeAchievement.fade,
+                        borderRadius: 20.0,
+                        color: Colors.black,
+                        alignment: Alignment.topCenter,
+                        duration: Duration(seconds: 3),
+                      )..show();
+                    } else {
+                      if (day.weekday == 7) {
                         AchievementView(
                           context,
-                          title: value.single.name,
+                          title: "Weekend",
                           subTitle:
-                              "You can\'t choose ${value.single.date}, it is a public holiday",
-                          icon: Icon(Icons.calendar_today, color: Colors.white),
+                              "You can\'t book an appointment by weekends",
+                          icon: Icon(
+                            Icons.calendar_today,
+                            color: Colors.white,
+                          ),
                           typeAnimationContent: AnimationTypeAchievement.fade,
                           borderRadius: 20.0,
                           color: Colors.black,
@@ -97,43 +107,12 @@ class _ScheduleAppointmentState extends State<ScheduleAppointment> {
                           duration: Duration(seconds: 3),
                         )..show();
                       } else {
-                        if (day.isBefore(DateTime.now())) {
-                          AchievementView(
-                            context,
-                            title: "Invalid date",
-                            subTitle:
-                                "You can\'t choose a day before current date",
-                            icon:
-                                Icon(Icons.calendar_today, color: Colors.white),
-                            typeAnimationContent: AnimationTypeAchievement.fade,
-                            borderRadius: 20.0,
-                            color: Colors.black,
-                            alignment: Alignment.topCenter,
-                            duration: Duration(seconds: 3),
-                          )..show();
-                        } else {
-                          if (day.weekday == 6 || day.weekday == 7) {
-                            AchievementView(
-                              context,
-                              title: "Weekend",
-                              subTitle:
-                                  "You can\'t book an appointment by weekends",
-                              icon: Icon(Icons.calendar_today,
-                                  color: Colors.white),
-                              typeAnimationContent:
-                                  AnimationTypeAchievement.fade,
-                              borderRadius: 20.0,
-                              color: Colors.black,
-                              alignment: Alignment.topCenter,
-                              duration: Duration(seconds: 3),
-                            )..show();
-                          } else {
-                            pro.setAppointmentParameters(
-                                AptMap.date, day.toIso8601String());
-                          }
-                        }
+                        pro.setAppointmentParameters(
+                          AptMap.date,
+                          day.toIso8601String(),
+                        );
                       }
-                    });
+                    }
                   },
                 ),
               ),
@@ -153,64 +132,7 @@ class _ScheduleAppointmentState extends State<ScheduleAppointment> {
                     const EdgeInsets.symmetric(horizontal: 15, vertical: 0),
                 child: Row(
                   children: [
-                    GestureDetector(
-                      onTap: () => showDialog(
-                        context: context,
-                        builder: (context) => Material(
-                          color: Colors.transparent,
-                          child: Padding(
-                            padding: const EdgeInsets.all(15.0),
-                            child: DurationPicker(
-                              snapToMins: 5,
-                              duration: Duration(minutes: 60),
-                              onChange: (d) {
-                                setState(() {});
-                              },
-                            ),
-                          ),
-                        ),
-                      ),
-                      child: Container(
-                        width: 100,
-                        height: 50,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                          color: Theme.of(context).primaryColor,
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: FittedBox(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text(
-                                    '12:00',
-                                    style:
-                                        Theme.of(context).textTheme.headline6,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.arrow_drop_up_outlined,
-                                  color: Colors.white,
-                                  size: 15,
-                                ),
-                                Icon(
-                                  Icons.arrow_drop_down,
-                                  color: Colors.white,
-                                  size: 15,
-                                ),
-                              ],
-                            ),
-                            SizedBox(width: 10)
-                          ],
-                        ),
-                      ),
-                    ),
+                    TimePicker(),
                     SizedBox(width: 15),
                     TimeSelect(),
                   ],
@@ -278,6 +200,132 @@ class _ScheduleAppointmentState extends State<ScheduleAppointment> {
   }
 }
 
+class TimePicker extends StatelessWidget {
+  const TimePicker({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    NumberFormat formatter = new NumberFormat("00");
+    var prod = Provider.of<ProducersProvider>(context, listen: false);
+
+    return GestureDetector(
+      onTap: () => showDialog(
+        context: context,
+        builder: (context) => Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              height: 120,
+              width: MediaQuery.of(context).size.width * .45,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).primaryColor,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: Theme.of(context).accentColor,
+                    width: 1,
+                  ),
+                ),
+                alignment: Alignment.center,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: PageView(
+                        scrollDirection: Axis.vertical,
+                        onPageChanged: (i) =>
+                            prod.setTime('hour', '${formatter.format(i + 1)}'),
+                        children: [
+                          for (var i = 1; i < 13; i++)
+                            Container(
+                              width: double.infinity,
+                              height: double.maxFinite,
+                              alignment: Alignment.center,
+                              child: Text(
+                                '${formatter.format(i)}',
+                                style: Theme.of(context).textTheme.headline1,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                    Text(
+                      ':',
+                      style: Theme.of(context).textTheme.headline1,
+                    ),
+                    Expanded(
+                      child: PageView(
+                        scrollDirection: Axis.vertical,
+                        onPageChanged: (i) => prod.setTime(
+                            'minute', '${formatter.format(i + 1)}'),
+                        children: [
+                          for (var i = 0; i < 60; i++)
+                            Container(
+                              width: double.infinity,
+                              height: double.maxFinite,
+                              alignment: Alignment.center,
+                              child: Text(
+                                '${formatter.format(i)}',
+                                style: Theme.of(context).textTheme.headline1,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      child: Container(
+        width: 100,
+        height: 50,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          color: Theme.of(context).primaryColor,
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Consumer<ProducersProvider>(
+                builder: (context, value, child) => FittedBox(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      '${value.time['hour']}:${value.time['minute']}',
+                      style: Theme.of(context).textTheme.headline6,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.arrow_drop_up_outlined,
+                  color: Colors.white,
+                  size: 15,
+                ),
+                Icon(
+                  Icons.arrow_drop_down,
+                  color: Colors.white,
+                  size: 15,
+                ),
+              ],
+            ),
+            SizedBox(width: 10)
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class TimeSelect extends StatefulWidget {
   @override
   _TimeSelectState createState() => _TimeSelectState();
@@ -289,6 +337,8 @@ class _TimeSelectState extends State<TimeSelect> {
 
   @override
   Widget build(BuildContext context) {
+    var prod = Provider.of<ProducersProvider>(context, listen: false);
+
     return Container(
       height: 50,
       decoration: BoxDecoration(
@@ -311,6 +361,7 @@ class _TimeSelectState extends State<TimeSelect> {
                 for (var i = 0; i < _label.length; i++)
                   GestureDetector(
                     onTap: () {
+                      prod.setTime('time', _label[i]);
                       setState(() {
                         t = _label[i];
                       });

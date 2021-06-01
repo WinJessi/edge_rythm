@@ -1,12 +1,13 @@
 class Producers {
   final int id;
-  final int producerID;
+  final String producerID;
   final String name;
   final String genre;
   final String about;
   final String photo;
   final String location;
   final List<dynamic> prices;
+  final String role;
 
   Producers({
     this.about,
@@ -16,6 +17,7 @@ class Producers {
     this.photo,
     this.location,
     this.name,
+    this.role,
     this.prices,
   });
 
@@ -26,6 +28,7 @@ class Producers {
         photo = map[ProducersMap.photo],
         producerID = map[ProducersMap.producer],
         location = map[ProducersMap.location],
+        role = map[ProducersMap.role],
         prices = [
           {
             'title': 'Rehearsal session',
@@ -76,6 +79,15 @@ class Producers {
           },
         ],
         about = map[ProducersMap.about];
+
+  Map<String, dynamic> toJson() => {
+        ProducersMap.id: id,
+        ProducersMap.name: name,
+        ProducersMap.genre: genre,
+        ProducersMap.location: location,
+        ProducersMap.about: about,
+        ProducersMap.photo: photo,
+      };
 }
 
 class ProducersMap {
@@ -86,5 +98,7 @@ class ProducersMap {
   static const about = 'about';
   static const prices = 'price_list';
   static const photo = 'photo';
+  static const phone = 'phone';
   static const producer = 'producer_id';
+  static const role = 'role';
 }
